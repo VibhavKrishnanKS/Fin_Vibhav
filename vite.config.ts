@@ -2,12 +2,15 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './', // Ensures relative paths for GitHub Pages subfolders
+  // Use relative base path so the app works on GitHub Pages subfolders
+  base: './',
   build: {
     outDir: 'dist',
-    sourcemap: false
+    assetsDir: 'assets',
+    sourcemap: false,
+    // Ensure the build fails early if there are TS errors
+    emptyOutDir: true,
   }
 });
