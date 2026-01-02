@@ -1,91 +1,124 @@
-
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Aethelgard Zenith • Sovereign Wealth</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2225%22 fill=%22%23121214%22/><path d=%22M50 25 L75 75 L25 75 Z%22 fill=%22%23d4af37%22/></svg>">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-          --gold: #d4af37;
-          --obsidian: #0a0a0b;
-          --card: #121214;
-        }
-        body { 
-          font-family: 'Inter', sans-serif; 
-          background-color: var(--obsidian);
-          color: #e4e4e7;
-          margin: 0;
-          overflow-x: hidden;
-          -webkit-tap-highlight-color: transparent;
-        }
-        .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
-        
-        .page-enter {
-          animation: pageEnter 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
-        }
-        @keyframes pageEnter {
-          from { opacity: 0; transform: translateY(20px) scale(0.98); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Aethelgard Zenith • Sovereign Wealth</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2225%22 fill=%22%23121214%22/><path d=%22M50 25 L75 75 L25 75 Z%22 fill=%22%23d4af37%22/></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --gold: #d4af37;
+      --obsidian: #0a0a0b;
+      --card: #121214;
+    }
 
-        .glass-card {
-          background: var(--card);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          box-shadow: 0 15px 40px -15px rgba(0,0,0,0.6);
-        }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--obsidian);
+      color: #e4e4e7;
+      margin: 0;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        .container-responsive { 
-          width: 100%; 
-          max-width: 1400px; 
-          margin: 0 auto; 
-          padding: 0 1rem;
-        }
+    .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
 
-        /* Landscape and Mobile Overrides */
-        @media (max-width: 768px) {
-          .mobile-sheet {
-            border-radius: 2.5rem 2.5rem 0 0 !important;
-            margin: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            bottom: 0 !important;
-            top: auto !important;
-            position: fixed;
-            animation: sheetSlideUp 0.5s cubic-bezier(0.32, 0.72, 0, 1);
-          }
-        }
+    .page-enter {
+      animation: pageEnter 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+    }
 
-        @media (orientation: landscape) and (max-height: 500px) {
-          .mobile-sheet {
-            position: relative !important;
-            top: 0 !important;
-            bottom: auto !important;
-            border-radius: 1.5rem !important;
-            max-height: 85vh !important;
-            width: 95% !important;
-            margin: auto !important;
-          }
-          body { padding-bottom: 4rem; }
-        }
+    @keyframes pageEnter {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+      }
 
-        @keyframes sheetSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.2); border-radius: 10px; }
-        
-        select {
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23d4af37'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-          background-repeat: no-repeat;
-          background-position: right 1.25rem center;
-          background-size: 0.8rem;
-        }
-    </style>
-<script type="importmap">
+    .glass-card {
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 15px 40px -15px rgba(0, 0, 0, 0.6);
+    }
+
+    .container-responsive {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* Landscape and Mobile Overrides */
+    @media (max-width: 768px) {
+      .mobile-sheet {
+        border-radius: 2.5rem 2.5rem 0 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        bottom: 0 !important;
+        top: auto !important;
+        position: fixed;
+        animation: sheetSlideUp 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 500px) {
+      .mobile-sheet {
+        position: relative !important;
+        top: 0 !important;
+        bottom: auto !important;
+        border-radius: 1.5rem !important;
+        max-height: 85vh !important;
+        width: 95% !important;
+        margin: auto !important;
+      }
+
+      body {
+        padding-bottom: 4rem;
+      }
+    }
+
+    @keyframes sheetSlideUp {
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(212, 175, 55, 0.2);
+      border-radius: 10px;
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23d4af37'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1.25rem center;
+      background-size: 0.8rem;
+    }
+  </style>
+  <script type="importmap">
 {
   "imports": {
     "jspdf": "https://esm.sh/jspdf@^3.0.4",
@@ -99,14 +132,17 @@
     "jspdf-autotable": "https://esm.sh/jspdf-autotable@^5.0.2",
     "express": "https://esm.sh/express@^5.2.1",
     "idb-keyval": "https://esm.sh/idb-keyval@^6.2.2",
-    "pg": "https://esm.sh/pg@^8.16.3"
+    "pg": "https://esm.sh/pg@^8.16.3",
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
+
 <body>
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+  <div id="root"></div>
+  <script type="module" src="./index.tsx"></script>
 </body>
+
 </html>
