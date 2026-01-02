@@ -11,14 +11,9 @@ import AccountSettings from './components/AccountSettings.tsx';
 import ExportModal from './components/ExportModal.tsx';
 import Toast from './components/Toast.tsx';
 import { get, set } from 'idb-keyval';
-import { syncToPostgres, fetchFromPostgres } from './services/apiService.ts';
-
-interface AppStateSnapshot {
-  transactions: Transaction[];
-  accounts: Account[];
-}
 
 const App: React.FC = () => {
+  // State initialization
   const [accounts, setAccounts] = useState<Account[]>(INITIAL_ACCOUNTS);
   const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -27,7 +22,6 @@ const App: React.FC = () => {
   });
 
   const [isLoading, setIsLoading] = useState(true);
-  const [dbStatus, setDbStatus] = useState<'connected' | 'syncing' | 'error' | 'cloud'>('connected');
   const [activeTab, setActiveTab] = useState<'dashboard' | 'transactions' | 'settings'>('dashboard');
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -35,68 +29,49 @@ const App: React.FC = () => {
 
   // Toast & Undo State
   const [toast, setToast] = useState<{ message: string, visible: boolean } | null>(null);
-  const snapshotRef = useRef<AppStateSnapshot | null>(null);
+  const snapshotRef = useRef<{ transactions: Transaction[], accounts: Account[] } | null>(null);
   const toastTimeoutRef = useRef<number | null>(null);
 
-  // Initialize App Data
+  // Remove splash screen once the component is ready
   useEffect(() => {
-    async function init() {
-      try {
-        const savedSync = await get('ws_sync_settings');
-        const settings = savedSync || syncSettings;
-        setSyncSettings(settings);
+    const splash = document.getElementById('splash-screen');
+    if (splash) {
+      splash.style.opacity = '0';
+      setTimeout(() => splash.remove(), 500);
+    }
+  }, []);
 
-        if (settings.enabled) {
-          try {
-            const data = await fetchFromPostgres(settings.apiUrl);
-            if (data.accounts?.length) {
-              setAccounts(data.accounts);
-              setCategories(data.categories);
-              setTransactions(data.transactions);
-              setDbStatus('cloud');
-            } else {
-              await loadLocal();
-            }
-          } catch (e) {
-            await loadLocal();
-            setDbStatus('error');
-          }
-        } else {
-          await loadLocal();
-        }
-      } catch (e) {
-        console.error("Initialization Error:", e);
+  // Initialize Data (Non-blocking)
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [a, c, t, s] = await Promise.all([
+          get('ws_accounts'),
+          get('ws_categories'),
+          get('ws_transactions'),
+          get('ws_sync_settings')
+        ]);
+
+        if (a) setAccounts(a);
+        if (c) setCategories(c);
+        if (t) setTransactions(t);
+        if (s) setSyncSettings(s);
+      } catch (err) {
+        console.warn("Storage initialization failed, using defaults.", err);
       } finally {
         setIsLoading(false);
       }
     }
-
-    async function loadLocal() {
-      const [a, c, t] = await Promise.all([
-        get('ws_accounts'),
-        get('ws_categories'),
-        get('ws_transactions')
-      ]);
-      if (a) setAccounts(a);
-      if (c) setCategories(c);
-      if (t) setTransactions(t);
-    }
-
-    init();
+    loadData();
   }, []);
 
-  // Persist State to IndexedDB
+  // Sync to Storage on change
   useEffect(() => {
     if (!isLoading) {
-      Promise.all([
-        set('ws_accounts', accounts),
-        set('ws_categories', categories),
-        set('ws_transactions', transactions),
-        set('ws_sync_settings', syncSettings)
-      ]);
-      if (dbStatus !== 'error' && dbStatus !== 'syncing') {
-        setDbStatus(syncSettings.enabled ? 'cloud' : 'connected');
-      }
+      set('ws_accounts', accounts);
+      set('ws_categories', categories);
+      set('ws_transactions', transactions);
+      set('ws_sync_settings', syncSettings);
     }
   }, [accounts, categories, transactions, syncSettings, isLoading]);
 
@@ -131,70 +106,43 @@ const App: React.FC = () => {
   };
 
   const handleDeleteTransaction = (id: string) => {
-    const txToDelete = transactions.find(t => t.id === id);
-    if (!txToDelete) return;
-
+    const tx = transactions.find(t => t.id === id);
+    if (!tx) return;
     snapshotRef.current = { transactions: [...transactions], accounts: [...accounts] };
-    const updatedAccs = updateBalances(accounts, txToDelete, -1);
-    const updatedTxs = transactions.filter(t => t.id !== id);
-
-    setAccounts(updatedAccs);
-    setTransactions(updatedTxs);
+    setAccounts(prev => updateBalances(prev, tx, -1));
+    setTransactions(prev => prev.filter(t => t.id !== id));
     triggerToast("Entry removed from ledger");
-
-    if (syncSettings.enabled) {
-      syncToPostgres(syncSettings.apiUrl, { accounts: updatedAccs, categories, transactions: updatedTxs }).catch(() => setDbStatus('error'));
-    }
   };
 
-  const handleSaveTransaction = async (data: Omit<Transaction, 'id'>, existingId?: string) => {
+  const handleSaveTransaction = (data: Omit<Transaction, 'id'>, existingId?: string) => {
     snapshotRef.current = { transactions: [...transactions], accounts: [...accounts] };
-    let updatedAccs = [...accounts];
-    let updatedTxs: Transaction[];
 
     if (existingId) {
       const oldTx = transactions.find(t => t.id === existingId);
-      if (oldTx) updatedAccs = updateBalances(updatedAccs, oldTx, -1);
-      const newTx = { ...data, id: existingId } as Transaction;
-      updatedAccs = updateBalances(updatedAccs, newTx, 1);
-      updatedTxs = transactions.map(t => t.id === existingId ? newTx : t);
+      if (oldTx) {
+        let updatedAccs = updateBalances([...accounts], oldTx, -1);
+        const newTx = { ...data, id: existingId } as Transaction;
+        setAccounts(updateBalances(updatedAccs, newTx, 1));
+        setTransactions(prev => prev.map(t => t.id === existingId ? newTx : t));
+      }
       triggerToast("Ledger entry updated");
     } else {
       const tx = { ...data, id: `tx-${Date.now()}` } as Transaction;
-      updatedAccs = updateBalances(updatedAccs, tx, 1);
-      updatedTxs = [tx, ...transactions];
+      setAccounts(prev => updateBalances(prev, tx, 1));
+      setTransactions(prev => [tx, ...prev]);
       triggerToast("New entry authorized");
     }
 
-    setTransactions(updatedTxs);
-    setAccounts(updatedAccs);
     setEditingTransaction(null);
     setIsTxModalOpen(false);
-
-    if (syncSettings.enabled) {
-      syncToPostgres(syncSettings.apiUrl, { accounts: updatedAccs, categories, transactions: updatedTxs }).catch(() => setDbStatus('error'));
-    }
   };
-
-  if (isLoading) {
-    return (
-      <div className="h-screen w-screen bg-[#0a0a0b] flex flex-col items-center justify-center">
-        <div className="w-12 h-12 bg-[#d4af37]/10 rounded-2xl flex items-center justify-center mb-4">
-          <i className="fa-solid fa-crown text-[#d4af37] animate-pulse"></i>
-        </div>
-        <div className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.5em] animate-pulse">
-          Initializing Zenith...
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#0a0a0b] text-[#e4e4e7] overflow-hidden">
-      {/* Sidebar - Desktop Only */}
-      <aside className="hidden lg:flex w-64 border-r border-white/5 bg-[#0e0e10] p-6 h-screen sticky top-0 flex-col z-20 shadow-[20px_0_40px_-20px_rgba(0,0,0,0.5)]">
+      {/* Sidebar - Desktop */}
+      <aside className="hidden lg:flex w-64 border-r border-white/5 bg-[#0e0e10] p-6 h-screen sticky top-0 flex-col z-20">
         <div className="flex items-center gap-3 mb-10">
-          <div className="w-8 h-8 bg-[#d4af37] rounded-lg flex items-center justify-center shadow-lg shadow-yellow-900/10">
+          <div className="w-8 h-8 bg-[#d4af37] rounded-lg flex items-center justify-center">
             <i className="fa-solid fa-crown text-[#0a0a0b] text-xs"></i>
           </div>
           <h1 className="text-base font-display font-extrabold tracking-tight">Zenith<span className="text-[#d4af37]">.</span></h1>
@@ -216,59 +164,64 @@ const App: React.FC = () => {
         </nav>
       </aside>
 
-      {/* Unified Dock (Phone & Tablet) */}
+      {/* Dock - Mobile */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-20 bg-[#0e0e10]/95 backdrop-blur-xl border-t border-white/5 flex items-start justify-around z-50 px-4 pt-2 pb-[env(safe-area-inset-bottom)]">
         {['dashboard', 'transactions', 'settings'].map(id => (
           <button key={id} onClick={() => setActiveTab(id as any)} className={`p-4 transition-all rounded-full ${activeTab === id ? 'text-[#d4af37] bg-white/5' : 'text-zinc-600'}`}>
             <i className={`fa-solid ${id === 'dashboard' ? 'fa-chart-line' : id === 'transactions' ? 'fa-table-list' : 'fa-sliders'} text-xl`}></i>
           </button>
         ))}
-        <button onClick={() => setIsTxModalOpen(true)} className="w-14 h-14 bg-[#d4af37] rounded-full text-[#0a0a0b] shadow-[0_8px_30px_rgba(212,175,55,0.3)] transform -translate-y-6 border-4 border-[#0a0a0b] active:scale-90 transition-all flex items-center justify-center">
+        <button onClick={() => setIsTxModalOpen(true)} className="w-14 h-14 bg-[#d4af37] rounded-full text-[#0a0a0b] shadow-xl transform -translate-y-6 border-4 border-[#0a0a0b] active:scale-90 transition-all flex items-center justify-center">
           <i className="fa-solid fa-plus text-xl"></i>
         </button>
       </nav>
 
-      {/* Main Framework */}
-      <main className="flex-1 p-4 md:p-8 lg:p-10 xl:p-14 overflow-y-auto overflow-x-hidden relative">
+      {/* Main Content Container */}
+      <main className="flex-1 p-4 md:p-8 lg:p-14 overflow-y-auto overflow-x-hidden relative">
         <div className="container-fluid page-enter max-w-7xl mx-auto pb-24 lg:pb-0" key={activeTab}>
-          <header className="flex items-center justify-between mb-8 md:mb-14">
+          <header className="flex items-center justify-between mb-8 md:mb-12">
             <div>
-              <h2 className="text-xl md:text-2xl font-display font-bold tracking-tight text-white mb-0.5">
-                {activeTab === 'dashboard' ? 'Sovereign Wealth' : activeTab === 'settings' ? 'System Controls' : 'Financial Ledger'}
-              </h2>
+              <h2 className="text-xl md:text-2xl font-display font-bold tracking-tight text-white mb-0.5 capitalize">{activeTab}</h2>
               <p className="text-zinc-600 text-[9px] font-bold uppercase tracking-[0.4em]">{new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
             </div>
-            <button onClick={() => setIsTxModalOpen(true)} className="hidden md:flex px-6 py-3 bg-[#d4af37] text-[#0a0a0b] rounded-xl font-black text-[9px] tracking-[0.2em] uppercase hover:scale-105 active:scale-95 transition-all shadow-xl items-center gap-2">
-              <i className="fa-solid fa-plus-circle"></i> ADD ENTRY
+            <button onClick={() => setIsTxModalOpen(true)} className="hidden md:flex px-6 py-3 bg-[#d4af37] text-[#0a0a0b] rounded-xl font-black text-[9px] tracking-[0.2em] uppercase shadow-xl hover:scale-105 active:scale-95 transition-all items-center gap-2">
+              <i className="fa-solid fa-plus-circle"></i> NEW ENTRY
             </button>
           </header>
 
-          <div className="space-y-12">
-            {activeTab === 'dashboard' && (
-              <>
-                <AccountSummary accounts={accounts} />
-                <Dashboard transactions={transactions} categories={categories} accounts={accounts} />
-              </>
-            )}
-            {activeTab === 'transactions' && (
-              <TransactionList
-                transactions={transactions} categories={categories} accounts={accounts}
-                onDelete={handleDeleteTransaction}
-                onEdit={(tx) => setEditingTransaction(tx)}
-                onOpenExport={() => setIsExportModalOpen(true)}
-              />
-            )}
-            {activeTab === 'settings' && (
-              <div className="max-w-4xl space-y-10 pb-20">
-                <AccountSettings accounts={accounts} onAdd={(a) => setAccounts(prev => [...prev, { ...a, id: `acc-${Date.now()}` }])} onUpdate={(id, u) => setAccounts(prev => prev.map(a => a.id === id ? { ...a, ...u } : a))} onDelete={(id) => setAccounts(prev => prev.filter(a => a.id !== id))} />
-                <CategorySettings categories={categories} onAdd={(n, t) => setCategories(prev => [...prev, { id: `cat-${Date.now()}`, name: n, type: t }])} onUpdate={(id, n) => setCategories(prev => prev.map(c => c.id === id ? { ...c, name: n } : c))} onDelete={(id) => setCategories(prev => prev.filter(c => c.id !== id))} />
-              </div>
-            )}
-          </div>
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-20 opacity-50">
+              <i className="fa-solid fa-circle-notch animate-spin text-2xl text-[#d4af37] mb-4"></i>
+              <span className="text-[10px] font-bold uppercase tracking-widest">Hydrating Ledger...</span>
+            </div>
+          ) : (
+            <div className="space-y-12">
+              {activeTab === 'dashboard' && (
+                <>
+                  <AccountSummary accounts={accounts} />
+                  <Dashboard transactions={transactions} categories={categories} accounts={accounts} />
+                </>
+              )}
+              {activeTab === 'transactions' && (
+                <TransactionList
+                  transactions={transactions} categories={categories} accounts={accounts}
+                  onDelete={handleDeleteTransaction}
+                  onEdit={(tx) => setEditingTransaction(tx)}
+                  onOpenExport={() => setIsExportModalOpen(true)}
+                />
+              )}
+              {activeTab === 'settings' && (
+                <div className="max-w-4xl space-y-10">
+                  <AccountSettings accounts={accounts} onAdd={(a) => setAccounts(prev => [...prev, { ...a, id: `acc-${Date.now()}` }])} onUpdate={(id, u) => setAccounts(prev => prev.map(a => a.id === id ? { ...a, ...u } : a))} onDelete={(id) => setAccounts(prev => prev.filter(a => a.id !== id))} />
+                  <CategorySettings categories={categories} onAdd={(n, t) => setCategories(prev => [...prev, { id: `cat-${Date.now()}`, name: n, type: t }])} onUpdate={(id, n) => setCategories(prev => prev.map(c => c.id === id ? { ...c, name: n } : c))} onDelete={(id) => setCategories(prev => prev.filter(c => c.id !== id))} />
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
 
-      {/* Interaction Layers */}
+      {/* Layers */}
       {(isTxModalOpen || editingTransaction) && (
         <AddTransactionModal
           accounts={accounts} categories={categories} initialData={editingTransaction || undefined}
