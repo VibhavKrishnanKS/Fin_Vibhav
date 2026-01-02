@@ -1,14 +1,23 @@
 
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 
-const container = document.getElementById('root');
-if (container) {
-  const root = ReactDOM.createRoot(container);
+const init = () => {
+  const container = document.getElementById('root');
+  if (!container) return;
+
+  const root = createRoot(container);
   root.render(
     <React.StrictMode>
       <App />
     </React.StrictMode>
   );
+};
+
+// Check if document is already loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
 }
