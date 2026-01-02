@@ -3,21 +3,17 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 
-const init = () => {
-  const container = document.getElementById('root');
-  if (!container) return;
-
+const container = document.getElementById('root');
+if (container) {
   const root = createRoot(container);
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
-};
+  root.render(<App />);
 
-// Check if document is already loaded
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
+  // Clean up splash screen once React has taken over
+  setTimeout(() => {
+    const splash = document.getElementById('splash-screen');
+    if (splash) {
+      splash.style.opacity = '0';
+      setTimeout(() => splash.remove(), 800);
+    }
+  }, 500);
 }
