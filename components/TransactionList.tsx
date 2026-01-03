@@ -25,7 +25,8 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, categor
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [transactions, search, filterType]);
 
-  const grouped = useMemo(() => {
+  // Added explicit return type to useMemo to ensure Object.entries correctly infers the types of keys and values
+  const grouped = useMemo<Record<string, Transaction[]>>(() => {
     const groups: Record<string, Transaction[]> = {};
     filtered.forEach(t => { if (!groups[t.date]) groups[t.date] = []; groups[t.date].push(t); });
     return groups;
@@ -63,7 +64,8 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, categor
       )}
 
       <div className="space-y-10 mt-8">
-        {Object.entries(grouped).map(([date, txs]) => (
+        {/* Explicitly typed the destructuring to resolve potential 'unknown' type inference issues on txs.map */}
+        {Object.entries(grouped).map(([date, txs]: [string, Transaction[]]) => (
           <div key={date} className="space-y-3">
             <h5 className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em] px-2 flex items-center gap-3">
               <span className="flex-shrink-0">{new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>

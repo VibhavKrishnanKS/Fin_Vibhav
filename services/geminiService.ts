@@ -5,7 +5,7 @@ import { Transaction, Category } from "../types";
 export const getFinancialInsights = async (transactions: Transaction[], categories: Category[]) => {
   // Always initialize right before use with the current process.env.API_KEY
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
+  
   const transactionsSummary = transactions.slice(0, 50).map(t => {
     const cat = categories.find(c => c.id === t.categoryId);
     const categoryName = cat ? cat.name : 'Other';
@@ -24,9 +24,9 @@ export const getFinancialInsights = async (transactions: Transaction[], categori
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-preview',
-      contents: [{ parts: [{ text: prompt }] }],
+      // Simplified contents by passing the prompt string directly
+      contents: prompt,
       config: {
-        thinkingConfig: { thinkingBudget: 4000 },
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.ARRAY,
@@ -35,7 +35,7 @@ export const getFinancialInsights = async (transactions: Transaction[], categori
             properties: {
               title: { type: Type.STRING },
               content: { type: Type.STRING },
-              type: {
+              type: { 
                 type: Type.STRING,
                 description: "Must be saving, warning, or tip"
               }

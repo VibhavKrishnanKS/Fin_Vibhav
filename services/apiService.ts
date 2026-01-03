@@ -1,5 +1,5 @@
 
-import { Account, Category, Transaction } from '../types.ts';
+import { Account, Category, Transaction } from '../types';
 
 const DEFAULT_URL = 'http://localhost:5000/api';
 

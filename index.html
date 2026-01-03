@@ -1,136 +1,75 @@
+
 <!DOCTYPE html>
 <html lang="en" class="dark">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Zenith • Sovereign Ledger</title>
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: { gold: '#d4af37', obsidian: '#0a0a0b', card: '#121214' },
-          fontFamily: { display: ['Plus Jakarta Sans', 'sans-serif'], sans: ['Inter', 'sans-serif'] }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Zenith • Sovereign Ledger</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: { gold: '#d4af37', obsidian: '#0a0a0b', card: '#121214' },
+            fontFamily: { display: ['Plus Jakarta Sans', 'sans-serif'], sans: ['Inter', 'sans-serif'] }
+          }
         }
       }
-    }
-  </script>
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap"
-    rel="stylesheet">
-
-  <style>
-    body {
-      background-color: #0a0a0b;
-      color: #e4e4e7;
-      margin: 0;
-      overflow-x: hidden;
-    }
-
-    #splash-screen {
-      position: fixed;
-      inset: 0;
-      background: #0a0a0b;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.5s ease;
-    }
-
-    .splash-logo {
-      width: 64px;
-      height: 64px;
-      background: #d4af37;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 24px;
-      box-shadow: 0 0 40px rgba(212, 175, 55, 0.2);
-      animation: pulse 2s infinite ease-in-out;
-    }
-
-    @keyframes pulse {
-
-      0%,
-      100% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.1);
-      }
-    }
-
-    .splash-text {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 10px;
-      font-weight: 800;
-      color: #3f3f46;
-      text-transform: uppercase;
-      letter-spacing: 0.5em;
-      text-align: center;
-    }
-
-    @keyframes page-enter {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .animate-page-enter {
-      animation: page-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-  </style>
-  <script type="importmap">
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { background-color: #0a0a0b; color: #e4e4e7; margin: 0; overflow-x: hidden; }
+        #splash-screen {
+          position: fixed; inset: 0; background: #0a0a0b;
+          display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999;
+          transition: opacity 0.5s ease;
+        }
+        .splash-logo {
+          width: 64px; height: 64px; background: #d4af37; border-radius: 20px;
+          display: flex; align-items: center; justify-content: center; margin-bottom: 24px;
+          box-shadow: 0 0 40px rgba(212, 175, 55, 0.2);
+          animation: pulse 2s infinite ease-in-out;
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .splash-text { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 800; color: #3f3f46; text-transform: uppercase; letter-spacing: 0.5em; text-align: center; }
+    </style>
+<script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
-    "recharts": "https://esm.sh/recharts@^3.6.0",
-    "idb-keyval": "https://esm.sh/idb-keyval@^6.2.2",
-    "jspdf": "https://esm.sh/jspdf@^3.0.4",
-    "jspdf-autotable": "https://esm.sh/jspdf-autotable@^5.0.2",
-    "xlsx": "https://esm.sh/xlsx@^0.18.5",
     "express": "https://esm.sh/express@^5.2.1",
     "pg": "https://esm.sh/pg@^8.16.3",
     "cors": "https://esm.sh/cors@^2.8.5",
     "vite": "https://esm.sh/vite@^7.3.0",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "firebase/": "https://esm.sh/firebase@^12.7.0/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "jspdf": "https://esm.sh/jspdf@^3.0.4",
+    "recharts": "https://esm.sh/recharts@^3.6.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+    "jspdf-autotable": "https://esm.sh/jspdf-autotable@^5.0.2",
+    "xlsx": "https://esm.sh/xlsx@^0.18.5"
   }
 }
 </script>
+<link rel="stylesheet" href="/index.css">
 </head>
-
 <body>
-  <div id="splash-screen">
-    <div class="splash-logo">
-      <svg width="32" height="32" viewBox="0 0 100 100" fill="none">
-        <path d="M50 20L85 80H15L50 20Z" fill="#0a0a0b" />
-      </svg>
+    <div id="splash-screen">
+      <div class="splash-logo">
+        <svg width="32" height="32" viewBox="0 0 100 100" fill="none"><path d="M50 20L85 80H15L50 20Z" fill="#0a0a0b"/></svg>
+      </div>
+      <div class="splash-text">Sovereign Ledger Initializing...</div>
     </div>
-    <div class="splash-text">Sovereign Ledger Initializing...</div>
-  </div>
 
-  <div id="root"></div>
-  <!-- Vite handles this entry point and converts it to a browser-ready JS bundle during the build -->
-  <script type="module" src="./index.tsx"></script>
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
 </body>
-
 </html>
