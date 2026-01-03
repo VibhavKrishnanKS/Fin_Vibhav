@@ -3,19 +3,19 @@ import React, { useState, useEffect, useRef } from 'react';
 // Corrected imports: Removing .ts/.tsx extensions from local imports as per standard practice
 import { Transaction, Account, Category } from './types';
 import { INITIAL_ACCOUNTS, INITIAL_CATEGORIES } from './constants';
-// Fix: Import onAuthStateChanged and User type from our local service instead of directly from firebase/auth
-import { 
-  auth, 
-  subscribeToData, 
-  subscribeToTransactions, 
-  saveUserData, 
-  addFirebaseTransaction, 
-  updateFirebaseTransaction, 
-  deleteFirebaseTransaction, 
+// Fix: Import User separately to resolve potential type resolution issues
+import {
+  auth,
+  subscribeToData,
+  subscribeToTransactions,
+  saveUserData,
+  addFirebaseTransaction,
+  updateFirebaseTransaction,
+  deleteFirebaseTransaction,
   logoutUser,
-  onAuthStateChanged,
-  type User
+  onAuthStateChanged
 } from './services/firebase';
+import type { User } from './services/firebase';
 
 import Dashboard from './components/Dashboard';
 import TransactionList from './components/TransactionList';
@@ -36,7 +36,7 @@ const App: React.FC = () => {
   const [accounts, setAccounts] = useState<Account[]>(INITIAL_ACCOUNTS);
   const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  
+
   const [activeTab, setActiveTab] = useState<'dashboard' | 'transactions' | 'settings'>('dashboard');
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -50,9 +50,9 @@ const App: React.FC = () => {
   useEffect(() => {
     // onAuthStateChanged is successfully imported from our services/firebase wrapper
     const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u);
+      setUser(u as User | null);
       setAuthLoading(false);
-      
+
       // Remove splash
       const splash = document.getElementById('splash-screen');
       if (splash) {
@@ -76,7 +76,7 @@ const App: React.FC = () => {
         // initialize their account with the default settings from constants.tsx
         saveUserData(user.uid, INITIAL_ACCOUNTS, INITIAL_CATEGORIES);
       }
-      
+
       if (data.categories.length > 0) {
         setCategories(data.categories);
       }
@@ -117,7 +117,7 @@ const App: React.FC = () => {
     if (!user) return;
     const tx = transactions.find(t => t.id === id);
     if (!tx) return;
-    
+
     const newAccs = updateLocalBalances(accounts, tx, -1);
     await Promise.all([
       deleteFirebaseTransaction(user.uid, id),
@@ -135,7 +135,7 @@ const App: React.FC = () => {
         let updatedAccs = updateLocalBalances([...accounts], oldTx, -1);
         const newTx = { ...data, id: existingId } as Transaction;
         const finalAccs = updateLocalBalances(updatedAccs, newTx, 1);
-        
+
         await Promise.all([
           updateFirebaseTransaction(user.uid, existingId, data),
           saveUserData(user.uid, finalAccs, categories)
@@ -145,14 +145,14 @@ const App: React.FC = () => {
     } else {
       const tx = { ...data } as Transaction;
       const finalAccs = updateLocalBalances(accounts, tx, 1);
-      
+
       await Promise.all([
         addFirebaseTransaction(user.uid, data),
         saveUserData(user.uid, finalAccs, categories)
       ]);
       triggerToast("Entry saved");
     }
-    
+
     setEditingTransaction(null);
     setIsTxModalOpen(false);
   };
@@ -185,7 +185,7 @@ const App: React.FC = () => {
             { id: 'transactions', icon: 'fa-list-ul', label: 'History' },
             { id: 'settings', icon: 'fa-gear', label: 'Settings' }
           ].map(item => (
-            <button 
+            <button
               key={item.id} onClick={() => setActiveTab(item.id as any)}
               className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[10px] font-black transition-all uppercase tracking-widest ${activeTab === item.id ? 'bg-[#d4af37]/10 text-[#d4af37]' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
             >
@@ -236,26 +236,26 @@ const App: React.FC = () => {
               </>
             )}
             {activeTab === 'transactions' && (
-              <TransactionList 
-                transactions={transactions} categories={categories} accounts={accounts} 
-                onDelete={handleDeleteTransaction} 
+              <TransactionList
+                transactions={transactions} categories={categories} accounts={accounts}
+                onDelete={handleDeleteTransaction}
                 onEdit={(tx) => setEditingTransaction(tx)}
                 onOpenExport={() => setIsExportModalOpen(true)}
               />
             )}
             {activeTab === 'settings' && (
               <div className="max-w-4xl space-y-10">
-                <AccountSettings 
-                  accounts={accounts} 
-                  onAdd={(a) => handleUpdateAccounts([...accounts, {...a, id: `acc-${Date.now()}`}])} 
-                  onUpdate={(id, u) => handleUpdateAccounts(accounts.map(a => a.id === id ? {...a, ...u} : a))} 
-                  onDelete={(id) => handleUpdateAccounts(accounts.filter(a => a.id !== id))} 
+                <AccountSettings
+                  accounts={accounts}
+                  onAdd={(a) => handleUpdateAccounts([...accounts, { ...a, id: `acc-${Date.now()}` }])}
+                  onUpdate={(id, u) => handleUpdateAccounts(accounts.map(a => a.id === id ? { ...a, ...u } : a))}
+                  onDelete={(id) => handleUpdateAccounts(accounts.filter(a => a.id !== id))}
                 />
-                <CategorySettings 
-                  categories={categories} 
-                  onAdd={(n, t) => handleUpdateCategories([...categories, {id: `cat-${Date.now()}`, name: n, type: t}])} 
-                  onUpdate={(id, n) => handleUpdateCategories(categories.map(c => c.id === id ? {...c, name: n} : c))} 
-                  onDelete={(id) => handleUpdateCategories(categories.filter(c => c.id !== id))} 
+                <CategorySettings
+                  categories={categories}
+                  onAdd={(n, t) => handleUpdateCategories([...categories, { id: `cat-${Date.now()}`, name: n, type: t }])}
+                  onUpdate={(id, n) => handleUpdateCategories(categories.map(c => c.id === id ? { ...c, name: n } : c))}
+                  onDelete={(id) => handleUpdateCategories(categories.filter(c => c.id !== id))}
                 />
               </div>
             )}
@@ -264,13 +264,13 @@ const App: React.FC = () => {
       </main>
 
       {(isTxModalOpen || editingTransaction) && (
-        <AddTransactionModal 
+        <AddTransactionModal
           accounts={accounts} categories={categories} initialData={editingTransaction || undefined}
-          onSave={handleSaveTransaction} onClose={() => {setIsTxModalOpen(false); setEditingTransaction(null);}} 
+          onSave={handleSaveTransaction} onClose={() => { setIsTxModalOpen(false); setEditingTransaction(null); }}
         />
       )}
       {isExportModalOpen && <ExportModal transactions={transactions} accounts={accounts} categories={categories} onClose={() => setIsExportModalOpen(false)} />}
-      {toast && <Toast message={toast.message} visible={toast.visible} onUndo={() => {}} />}
+      {toast && <Toast message={toast.message} visible={toast.visible} onUndo={() => { }} />}
     </div>
   );
 };

@@ -1,23 +1,22 @@
 
 // @google/genai Coding Guidelines: This file handles Firebase integration.
 import { initializeApp } from "firebase/app";
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  User
 } from "firebase/auth";
-// Fix: Import 'User' specifically as a type to avoid resolution issues in environments with older TypeScript configurations
-import type { User } from "firebase/auth";
-import { 
-  getFirestore, 
-  doc, 
-  setDoc, 
-  collection, 
-  onSnapshot, 
-  addDoc, 
-  deleteDoc, 
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  collection,
+  onSnapshot,
+  addDoc,
+  deleteDoc,
   updateDoc,
   query,
   orderBy,
@@ -36,6 +35,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase with modular SDK v9+
+// Fix: Ensure modular initialization and exports are clean
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
@@ -46,6 +46,7 @@ export const registerUser = (email: string, pass: string) => createUserWithEmail
 export const logoutUser = () => signOut(auth);
 
 // Re-exports for consumers
+// Fix: Re-exporting onAuthStateChanged and User type cleanly
 export { onAuthStateChanged };
 export type { User };
 
