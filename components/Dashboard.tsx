@@ -65,14 +65,14 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
   return (
     <div className="space-y-6 animate-page-enter pb-24 md:pb-10">
       {/* 1. WEALTH DYNAMICS - Trend Chart */}
-      <div className="glass-card p-5 md:p-8 rounded-[2rem] h-[280px] md:h-[350px]">
-        <h4 className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.4em] mb-6 flex items-center gap-3">
+      <div className="glass-card p-5 md:p-8 rounded-[2rem] flex flex-col min-h-[350px] md:min-h-[450px]">
+        <h4 className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.4em] mb-6 flex items-center gap-3 shrink-0">
           <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]"></span>
           Wealth Dynamics Trend
         </h4>
-        <div className="w-full h-full pb-10">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData}>
+        <div className="flex-1 w-full min-h-[250px] h-[300px] md:h-full overflow-hidden">
+          <ResponsiveContainer width="100%" height="100%" debounce={100} minHeight={200}>
+            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#d4af37" stopOpacity={0.15}/>
@@ -81,7 +81,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff05" />
               <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#52525b' }} />
-              <YAxis hide />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#52525b' }} />
               <Tooltip 
                 contentStyle={{ backgroundColor: '#121214', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', fontSize: '10px' }}
                 cursor={{ stroke: '#d4af37', strokeOpacity: 0.1 }}
@@ -95,12 +95,12 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
 
       {/* 2. DUAL PIE CHARTS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="glass-card p-6 md:p-8 rounded-[2.5rem] flex flex-col items-center">
+        <div className="glass-card p-6 md:p-8 rounded-[2.5rem] flex flex-col items-center min-h-[300px]">
           <h4 className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.4em] mb-4 w-full">Revenue Allocation</h4>
-          <div className="w-full h-[200px] md:h-[240px]">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="flex-1 w-full min-h-[200px] h-[220px]">
+            <ResponsiveContainer width="100%" height="100%" debounce={100} minHeight={150}>
               <PieChart>
-                <Pie data={incomePieData} innerRadius={60} outerRadius={80} paddingAngle={4} dataKey="value">
+                <Pie data={incomePieData} innerRadius="60%" outerRadius="80%" paddingAngle={4} dataKey="value">
                   {incomePieData.map((_, i) => <Cell key={`cell-${i}`} fill={INCOME_COLORS[i % INCOME_COLORS.length]} stroke="none" />)}
                 </Pie>
                 <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '10px' }} />
@@ -109,12 +109,12 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
           </div>
         </div>
 
-        <div className="glass-card p-6 md:p-8 rounded-[2.5rem] flex flex-col items-center">
+        <div className="glass-card p-6 md:p-8 rounded-[2.5rem] flex flex-col items-center min-h-[300px]">
           <h4 className="text-[9px] font-black text-rose-500 uppercase tracking-[0.4em] mb-4 w-full">Expenditure Allocation</h4>
-          <div className="w-full h-[200px] md:h-[240px]">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="flex-1 w-full min-h-[200px] h-[220px]">
+            <ResponsiveContainer width="100%" height="100%" debounce={100} minHeight={150}>
               <PieChart>
-                <Pie data={expensePieData} innerRadius={60} outerRadius={80} paddingAngle={4} dataKey="value">
+                <Pie data={expensePieData} innerRadius="60%" outerRadius="80%" paddingAngle={4} dataKey="value">
                   {expensePieData.map((_, i) => <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} stroke="none" />)}
                 </Pie>
                 <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '10px' }} />

@@ -1,3 +1,4 @@
+
 {
   "name": "zenith-sovereign-wealth",
   "private": true,
@@ -10,7 +11,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.34.0",
-    "firebase": "^11.10.0",
+    "firebase": "^11.0.1",
     "idb-keyval": "^6.2.2",
     "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.2",

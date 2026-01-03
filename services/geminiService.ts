@@ -5,7 +5,7 @@ import { Transaction, Category } from "../types";
 export const getFinancialInsights = async (transactions: Transaction[], categories: Category[]) => {
   // Always initialize right before use with the current process.env.API_KEY
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
+  
   const transactionsSummary = transactions.slice(0, 50).map(t => {
     const cat = categories.find(c => c.id === t.categoryId);
     const categoryName = cat ? cat.name : 'Other';
@@ -36,7 +36,7 @@ export const getFinancialInsights = async (transactions: Transaction[], categori
             properties: {
               title: { type: Type.STRING },
               content: { type: Type.STRING },
-              type: {
+              type: { 
                 type: Type.STRING,
                 description: "Must be saving, warning, or tip"
               }
