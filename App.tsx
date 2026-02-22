@@ -2,14 +2,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Transaction, Account, Category } from './types';
 import { INITIAL_ACCOUNTS, INITIAL_CATEGORIES } from './constants';
-import { 
-  auth, 
-  subscribeToData, 
-  subscribeToTransactions, 
-  saveUserData, 
-  addFirebaseTransaction, 
-  updateFirebaseTransaction, 
-  deleteFirebaseTransaction, 
+import {
+  auth,
+  subscribeToData,
+  subscribeToTransactions,
+  saveUserData,
+  addFirebaseTransaction,
+  updateFirebaseTransaction,
+  deleteFirebaseTransaction,
   logoutUser,
   onAuthStateChanged
 } from './services/firebase';
@@ -169,14 +169,14 @@ const App: React.FC = () => {
           </div>
           <h1 className="text-base font-display font-extrabold tracking-tight text-white">Zenith<span className="text-[#d4af37]">.</span></h1>
         </div>
-        
+
         <nav className="space-y-1.5 flex-1">
           {[
             { id: 'dashboard', icon: 'fa-chart-line', label: 'Dashboard' },
             { id: 'transactions', icon: 'fa-list-ul', label: 'History' },
             { id: 'settings', icon: 'fa-gear', label: 'Settings' }
           ].map(item => (
-            <button 
+            <button
               key={item.id} onClick={() => setActiveTab(item.id as any)}
               className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[10px] font-black transition-all uppercase tracking-widest ${activeTab === item.id ? 'bg-[#d4af37]/10 text-[#d4af37]' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
             >
@@ -189,7 +189,7 @@ const App: React.FC = () => {
         <div className="mt-auto pt-6 border-t border-white/5 space-y-4">
           <div className="px-4 py-3 flex items-center gap-3 bg-white/[0.02] rounded-xl border border-white/5">
             <div className="w-8 h-8 rounded-lg bg-[#d4af37]/10 flex items-center justify-center text-[#d4af37] text-[10px]">
-               <i className="fa-solid fa-user-shield"></i>
+              <i className="fa-solid fa-user-shield"></i>
             </div>
             <div className="overflow-hidden">
               <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-0.5">Sovereign User</p>
@@ -218,7 +218,7 @@ const App: React.FC = () => {
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 p-4 md:p-8 lg:p-14 overflow-y-auto overflow-x-hidden relative">
         <div className="container-fluid page-enter max-w-7xl mx-auto pb-24 lg:pb-0" key={activeTab}>
-          
+
           {/* RESPONSIVE HEADER WITH USER IDENTITY */}
           <header className="flex items-center justify-between mb-8 md:mb-12 gap-4">
             <div className="min-w-0">
@@ -228,7 +228,7 @@ const App: React.FC = () => {
                 <p className="text-zinc-600 text-[9px] font-bold uppercase tracking-[0.4em]">Live Connection</p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3 min-w-0">
               {/* TABLET/MOBILE USER CHIP */}
               <div className="lg:hidden flex items-center gap-2 px-3 py-2 bg-white/5 rounded-xl border border-white/10 overflow-hidden">
@@ -236,10 +236,10 @@ const App: React.FC = () => {
                   <i className="fa-solid fa-user-check"></i>
                 </div>
                 <div className="hidden sm:block overflow-hidden">
-                   <p className="text-[10px] font-bold text-zinc-300 truncate max-w-[120px]">{user.email?.split('@')[0]}</p>
+                  <p className="text-[10px] font-bold text-zinc-300 truncate max-w-[120px]">{user.email?.split('@')[0]}</p>
                 </div>
-                <button 
-                  onClick={logoutUser} 
+                <button
+                  onClick={logoutUser}
                   className="ml-1 text-zinc-500 hover:text-rose-500 transition-colors p-1"
                   title="Sign Out"
                 >
@@ -261,26 +261,26 @@ const App: React.FC = () => {
               </>
             )}
             {activeTab === 'transactions' && (
-              <TransactionList 
-                transactions={transactions} categories={categories} accounts={accounts} 
-                onDelete={handleDeleteTransaction} 
+              <TransactionList
+                transactions={transactions} categories={categories} accounts={accounts}
+                onDelete={handleDeleteTransaction}
                 onEdit={(tx) => setEditingTransaction(tx)}
                 onOpenExport={() => setIsExportModalOpen(true)}
               />
             )}
             {activeTab === 'settings' && (
               <div className="max-w-4xl space-y-10">
-                <AccountSettings 
-                  accounts={accounts} 
-                  onAdd={(a) => handleUpdateAccounts([...accounts, {...a, id: `acc-${Date.now()}`}])} 
-                  onUpdate={(id, u) => handleUpdateAccounts(accounts.map(a => a.id === id ? {...a, ...u} : a))} 
-                  onDelete={(id) => handleUpdateAccounts(accounts.filter(a => a.id !== id))} 
+                <AccountSettings
+                  accounts={accounts}
+                  onAdd={(a) => handleUpdateAccounts([...accounts, { ...a, id: `acc-${Date.now()}` }])}
+                  onUpdate={(id, u) => handleUpdateAccounts(accounts.map(a => a.id === id ? { ...a, ...u } : a))}
+                  onDelete={(id) => handleUpdateAccounts(accounts.filter(a => a.id !== id))}
                 />
-                <CategorySettings 
-                  categories={categories} 
-                  onAdd={(n, t) => handleUpdateCategories([...categories, {id: `cat-${Date.now()}`, name: n, type: t}])} 
-                  onUpdate={(id, n) => handleUpdateCategories(categories.map(c => c.id === id ? {...c, name: n} : c))} 
-                  onDelete={(id) => handleUpdateCategories(categories.filter(c => c.id !== id))} 
+                <CategorySettings
+                  categories={categories}
+                  onAdd={(n, t) => handleUpdateCategories([...categories, { id: `cat-${Date.now()}`, name: n, type: t }])}
+                  onUpdate={(id, n) => handleUpdateCategories(categories.map(c => c.id === id ? { ...c, name: n } : c))}
+                  onDelete={(id) => handleUpdateCategories(categories.filter(c => c.id !== id))}
                 />
               </div>
             )}
@@ -289,13 +289,13 @@ const App: React.FC = () => {
       </main>
 
       {(isTxModalOpen || editingTransaction) && (
-        <AddTransactionModal 
+        <AddTransactionModal
           accounts={accounts} categories={categories} initialData={editingTransaction || undefined}
-          onSave={handleSaveTransaction} onClose={() => {setIsTxModalOpen(false); setEditingTransaction(null);}} 
+          onSave={handleSaveTransaction} onClose={() => { setIsTxModalOpen(false); setEditingTransaction(null); }}
         />
       )}
       {isExportModalOpen && <ExportModal transactions={transactions} accounts={accounts} categories={categories} onClose={() => setIsExportModalOpen(false)} />}
-      {toast && <Toast message={toast.message} visible={toast.visible} onUndo={() => {}} />}
+      {toast && <Toast message={toast.message} visible={toast.visible} onUndo={() => { }} />}
     </div>
   );
 };
