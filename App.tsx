@@ -14,6 +14,7 @@ import {
   onAuthStateChanged
 } from './services/firebase';
 import type { User } from './services/firebase';
+import Background3D from './components/Background3D';
 
 import Dashboard from './components/Dashboard';
 import TransactionList from './components/TransactionList';
@@ -45,7 +46,7 @@ const App: React.FC = () => {
       const splash = document.getElementById('splash-screen');
       if (splash) {
         splash.style.opacity = '0';
-        setTimeout(() => splash.remove(), 500);
+        setTimeout(() => splash.remove(), 800);
       }
     });
     return () => unsub();
@@ -112,10 +113,9 @@ const App: React.FC = () => {
         await addFirebaseTransaction(user.uid, data);
         await saveUserData(user.uid, finalAccs, categories);
       }
-      triggerToast("Ledger updated");
+      triggerToast("Ledger Synchronized");
     } catch (err) {
-      console.error("Save Error:", err);
-      triggerToast("Cloud sync failed");
+      triggerToast("Sync Interrupted");
     }
     setEditingTransaction(null);
     setIsTxModalOpen(false);
@@ -129,10 +129,9 @@ const App: React.FC = () => {
       const finalAccs = calculateNewBalances([...accounts], tx, -1);
       await deleteFirebaseTransaction(user.uid, id);
       await saveUserData(user.uid, finalAccs, categories);
-      triggerToast("Entry purged");
+      triggerToast("Record Purged");
     } catch (err) {
-      console.error("Delete Error:", err);
-      triggerToast("Deletion failed");
+      triggerToast("Purge Failed");
     }
   };
 
@@ -140,9 +139,9 @@ const App: React.FC = () => {
     if (!user) return;
     try {
       await saveUserData(user.uid, newAccounts, categories);
-      triggerToast("Accounts updated");
+      triggerToast("Vaults Updated");
     } catch (err) {
-      triggerToast("Update failed");
+      triggerToast("Update Failed");
     }
   };
 
@@ -150,9 +149,9 @@ const App: React.FC = () => {
     if (!user) return;
     try {
       await saveUserData(user.uid, accounts, newCategories);
-      triggerToast("Categories updated");
+      triggerToast("Sectors Updated");
     } catch (err) {
-      triggerToast("Update failed");
+      triggerToast("Update Failed");
     }
   };
 
@@ -160,100 +159,132 @@ const App: React.FC = () => {
   if (!user) return <AuthView />;
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#0a0a0b] text-[#e4e4e7] overflow-hidden">
-      {/* DESKTOP SIDEBAR */}
-      <aside className="hidden lg:flex w-64 border-r border-white/5 bg-[#0e0e10] p-6 h-screen sticky top-0 flex-col z-20">
-        <div className="flex items-center gap-3 mb-10">
-          <div className="w-8 h-8 bg-[#d4af37] rounded-lg flex items-center justify-center">
-            <i className="fa-solid fa-crown text-[#0a0a0b] text-xs"></i>
-          </div>
-          <h1 className="text-base font-display font-extrabold tracking-tight text-white">Zenith<span className="text-[#d4af37]">.</span></h1>
-        </div>
+    <div className="min-h-screen flex flex-col lg:flex-row text-white overflow-hidden bg-[#0a0f1a]" style={{ WebkitFontSmoothing: 'antialiased' }}>
+      <Background3D />
 
-        <nav className="space-y-1.5 flex-1">
-          {[
-            { id: 'dashboard', icon: 'fa-chart-line', label: 'Dashboard' },
-            { id: 'transactions', icon: 'fa-list-ul', label: 'History' },
-            { id: 'settings', icon: 'fa-gear', label: 'Settings' }
-          ].map(item => (
-            <button
-              key={item.id} onClick={() => setActiveTab(item.id as any)}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[10px] font-black transition-all uppercase tracking-widest ${activeTab === item.id ? 'bg-[#d4af37]/10 text-[#d4af37]' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
-            >
-              <i className={`fa-solid ${item.icon} w-5`}></i>
-              {item.label}
+      {/* INSTITUTIONAL SIDEBAR (DESKTOP) */}
+      <aside className="hidden lg:flex w-[280px] h-screen sticky top-0 flex-col z-20 p-5">
+        <div className="flex-1 flex flex-col rounded-[32px] p-6 glass relative overflow-y-auto custom-scrollbar" style={{ boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
+          {/* Top Logo Section */}
+          <div className="flex items-center gap-4 mb-10 px-1">
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center relative group shine-hover overflow-hidden" style={{
+              background: 'linear-gradient(135deg, #4285F4, #34A853)',
+              boxShadow: '0 8px 24px rgba(66,133,244,0.3)',
+            }}>
+              <i className="fa-solid fa-vault text-white text-lg transition-transform duration-500 group-hover:scale-110"></i>
+            </div>
+            <div>
+              <h1 className="text-lg font-display font-black tracking-tighter text-white leading-none">VibhavWealth</h1>
+              <p className="text-[9px] text-gray-500 font-bold uppercase tracking-[0.2em] mt-1.5 opacity-60">Sovereign Alpha</p>
+            </div>
+          </div>
+
+          {/* Navigation Matrix */}
+          <nav className="space-y-2 flex-1">
+            <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.3em] px-3 mb-4">Command Center</p>
+            {[
+              { id: 'dashboard', icon: 'fa-chart-pie-simple', label: 'Intelligence' },
+              { id: 'transactions', icon: 'fa-microchip', label: 'Ledger' },
+              { id: 'settings', icon: 'fa-sliders-up', label: 'Parameters' }
+            ].map(item => (
+              <button
+                key={item.id} onClick={() => setActiveTab(item.id as any)}
+                className="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 relative group shine-hover"
+                style={{
+                  background: activeTab === item.id ? 'rgba(66,133,244,0.1)' : 'transparent',
+                  color: activeTab === item.id ? '#8ab4f8' : '#6b7280',
+                  boxShadow: activeTab === item.id ? 'inset 0 0 10px rgba(66,133,244,0.05)' : 'none'
+                }}
+              >
+                {activeTab === item.id && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-[#4285F4] shadow-[0_0_10px_#4285F4]" />}
+                <i className={`fa-solid ${item.icon} w-5 text-center text-sm transition-transform duration-300 group-hover:scale-110`}></i>
+                <span className="tracking-wide uppercase text-[11px]">{item.label}</span>
+              </button>
+            ))}
+          </nav>
+
+          {/* Stakeholder Identity */}
+          <div className="pt-6 mt-auto border-t border-white/5">
+            <div className="flex items-center gap-3 px-3 py-3 rounded-2xl mb-4 glass group cursor-pointer" style={{ background: 'rgba(255,255,255,0.02)' }}>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #4285F4, #8ab4f8)', color: 'white' }}>
+                <span className="relative z-10">{user.email?.charAt(0).toUpperCase()}</span>
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+              </div>
+              <div className="overflow-hidden flex-1">
+                <p className="text-[11px] font-bold text-gray-300 truncate tracking-tight">{user.email?.split('@')[0]}</p>
+                <p className="text-[9px] text-gray-600 font-bold truncate tracking-widest uppercase mt-0.5">Primary Holder</p>
+              </div>
+            </div>
+            <button onClick={logoutUser} className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 hover:text-red-400 hover:bg-red-500/5 transition-all group">
+              <i className="fa-solid fa-power-off text-[11px] transition-transform group-hover:rotate-90"></i>
+              Terminate Session
             </button>
-          ))}
-        </nav>
-
-        <div className="mt-auto pt-6 border-t border-white/5 space-y-4">
-          <div className="px-4 py-3 flex items-center gap-3 bg-white/[0.02] rounded-xl border border-white/5">
-            <div className="w-8 h-8 rounded-lg bg-[#d4af37]/10 flex items-center justify-center text-[#d4af37] text-[10px]">
-              <i className="fa-solid fa-user-shield"></i>
-            </div>
-            <div className="overflow-hidden">
-              <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-0.5">Sovereign User</p>
-              <p className="text-[10px] font-bold text-zinc-300 truncate">{user.email}</p>
-            </div>
           </div>
-          <button onClick={logoutUser} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[10px] font-black text-zinc-600 hover:text-rose-500 transition-all uppercase tracking-widest group">
-            <i className="fa-solid fa-right-from-bracket w-5 group-hover:-translate-x-1 transition-transform"></i>
-            Sign Out
-          </button>
         </div>
       </aside>
 
       {/* MOBILE BOTTOM NAV */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-20 bg-[#0e0e10]/95 backdrop-blur-xl border-t border-white/5 flex items-start justify-around z-50 px-4 pt-2 pb-[env(safe-area-inset-bottom)]">
-        {['dashboard', 'transactions', 'settings'].map(id => (
-          <button key={id} onClick={() => setActiveTab(id as any)} className={`p-4 transition-all rounded-full ${activeTab === id ? 'text-[#d4af37] bg-white/5' : 'text-zinc-600'}`}>
-            <i className={`fa-solid ${id === 'dashboard' ? 'fa-chart-line' : id === 'transactions' ? 'fa-list-ul' : 'fa-gear'} text-xl`}></i>
-          </button>
-        ))}
-        <button onClick={() => setIsTxModalOpen(true)} className="w-14 h-14 bg-[#d4af37] rounded-full text-[#0a0a0b] shadow-xl transform -translate-y-6 border-4 border-[#0a0a0b] active:scale-90 transition-all flex items-center justify-center">
-          <i className="fa-solid fa-plus text-xl"></i>
-        </button>
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-5 pb-[env(safe-area-inset-bottom)]" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}>
+        <div className="flex items-center justify-around py-2.5 rounded-[28px] mx-auto max-w-md glass" style={{
+           boxShadow: '0 -10px 40px rgba(0,0,0,0.5)',
+           border: '1px solid rgba(255,255,255,0.1)'
+        }}>
+          {[
+            { id: 'dashboard', icon: 'fa-chart-column', label: 'Core' },
+            { id: 'transactions', icon: 'fa-list-ul', label: 'Logs' },
+            { id: 'add', icon: 'fa-plus', label: 'Input', isAction: true },
+            { id: 'settings', icon: 'fa-gears', label: 'Config' },
+          ].map(item => item.isAction ? (
+            <button key="add" onClick={() => setIsTxModalOpen(true)}
+              className="w-14 h-14 rounded-2xl flex items-center justify-center text-white -mt-8 active:scale-90 transition-all btn-primary-glow shine-hover shadow-2xl"
+              style={{ background: 'linear-gradient(135deg, #4285F4, #3b78e7)' }}
+            >
+              <i className="fa-solid fa-plus text-xl"></i>
+            </button>
+          ) : (
+            <button key={item.id} onClick={() => setActiveTab(item.id as any)}
+              className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all"
+              style={{ color: activeTab === item.id ? '#8ab4f8' : '#4b5563' }}
+            >
+              <i className={`fa-solid ${item.icon} text-lg`}></i>
+              <span className="text-[8px] font-black uppercase tracking-widest">{item.label}</span>
+            </button>
+          ))}
+        </div>
       </nav>
 
-      {/* MAIN CONTENT AREA */}
-      <main className="flex-1 p-4 md:p-8 lg:p-14 overflow-y-auto overflow-x-hidden relative">
-        <div className="container-fluid page-enter max-w-7xl mx-auto pb-24 lg:pb-0" key={activeTab}>
-
-          {/* RESPONSIVE HEADER WITH USER IDENTITY */}
-          <header className="flex items-center justify-between mb-8 md:mb-12 gap-4">
-            <div className="min-w-0">
-              <h2 className="text-xl md:text-2xl font-display font-bold tracking-tight text-white mb-0.5 capitalize">{activeTab}</h2>
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <p className="text-zinc-600 text-[9px] font-bold uppercase tracking-[0.4em]">Live Connection</p>
+      {/* MAIN VIEWPORT */}
+      <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-10 min-h-screen overscroll-behavior-y-contain">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-8 sm:py-10 lg:py-12 pb-36 lg:pb-12" key={activeTab} style={{ animation: 'pageIn 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+          {/* Tactical Header */}
+          <header className="flex flex-col sm:flex-row sm:items-center justify-between mb-10 sm:mb-12 gap-6 pb-6 border-b border-white/5">
+            <div>
+              <div className="flex items-center gap-3 mb-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]"></span>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.4em]">Security Status: Encrypted</p>
               </div>
+              <h2 className="text-3xl sm:text-4xl font-display font-black tracking-tighter text-white capitalize">{activeTab}</h2>
             </div>
 
-            <div className="flex items-center gap-3 min-w-0">
-              {/* TABLET/MOBILE USER CHIP */}
-              <div className="lg:hidden flex items-center gap-2 px-3 py-2 bg-white/5 rounded-xl border border-white/10 overflow-hidden">
-                <div className="w-6 h-6 rounded-lg bg-[#d4af37]/20 flex items-center justify-center text-[#d4af37] text-[8px] shrink-0">
-                  <i className="fa-solid fa-user-check"></i>
+            <div className="flex items-center gap-3">
+              <div className="lg:hidden flex items-center gap-3 px-4 py-2.5 rounded-2xl glass" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-black" style={{ background: 'linear-gradient(135deg, #4285F4, #8ab4f8)', color: 'white' }}>
+                  {user.email?.charAt(0).toUpperCase()}
                 </div>
-                <div className="hidden sm:block overflow-hidden">
-                  <p className="text-[10px] font-bold text-zinc-300 truncate max-w-[120px]">{user.email?.split('@')[0]}</p>
-                </div>
-                <button
-                  onClick={logoutUser}
-                  className="ml-1 text-zinc-500 hover:text-rose-500 transition-colors p-1"
-                  title="Sign Out"
-                >
-                  <i className="fa-solid fa-right-from-bracket text-xs"></i>
+                <button onClick={logoutUser} className="text-gray-500 hover:text-red-400 transition-all p-1">
+                  <i className="fa-solid fa-power-off text-xs"></i>
                 </button>
               </div>
-
-              <button onClick={() => setIsTxModalOpen(true)} className="hidden md:flex px-6 py-3 bg-[#d4af37] text-[#0a0a0b] rounded-xl font-black text-[9px] tracking-[0.2em] uppercase shadow-xl hover:scale-105 active:scale-95 transition-all items-center gap-2">
-                <i className="fa-solid fa-plus"></i> ADD ENTRY
+              <button onClick={() => setIsTxModalOpen(true)}
+                className="hidden sm:flex px-6 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-white items-center gap-3 active:scale-95 transition-all btn-primary-glow shine-hover shadow-xl"
+              >
+                <i className="fa-solid fa-plus text-[10px]"></i> New Entry
               </button>
             </div>
           </header>
 
-          <div className="space-y-12">
+          {/* Operation Content */}
+          <div className="space-y-8 sm:space-y-12">
             {activeTab === 'dashboard' && (
               <>
                 <AccountSummary accounts={accounts} />
@@ -269,7 +300,7 @@ const App: React.FC = () => {
               />
             )}
             {activeTab === 'settings' && (
-              <div className="max-w-4xl space-y-10">
+              <div className="max-w-4xl space-y-10 sm:space-y-12">
                 <AccountSettings
                   accounts={accounts}
                   onAdd={(a) => handleUpdateAccounts([...accounts, { ...a, id: `acc-${Date.now()}` }])}
@@ -286,6 +317,12 @@ const App: React.FC = () => {
             )}
           </div>
         </div>
+
+        <style>{`
+          @keyframes pageIn { from { opacity: 0; transform: translateY(32px); } to { opacity: 1; transform: translateY(0); } }
+          .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+          .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+        `}</style>
       </main>
 
       {(isTxModalOpen || editingTransaction) && (

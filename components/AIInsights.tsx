@@ -63,7 +63,7 @@ const AIInsights: React.FC<AIInsightsProps> = ({ transactions, categories }) => 
           ))
         ) : insights.length > 0 ? (
           insights.map((insight, idx) => (
-            <div key={idx} className="p-5 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 hover:shadow-lg transition-all">
+            <div key={idx} className="p-5 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-gray-600 hover:shadow-lg transition-all">
               <div className="flex items-start gap-4">
                 <div className="mt-1 text-xl">
                   {getTypeIcon(insight.type)}

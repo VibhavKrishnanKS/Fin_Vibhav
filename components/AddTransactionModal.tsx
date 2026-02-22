@@ -22,10 +22,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputAmount || !description || !fromAccountId) return;
-    if (type !== 'transfer' && !selectedCategoryId) {
-      alert("Please select a category.");
-      return;
-    }
+    if (type !== 'transfer' && !selectedCategoryId) return;
     
     onSave({
       amount: parseFloat(inputAmount),
@@ -39,122 +36,162 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
     onClose();
   };
 
+  const inputClass = "w-full glass bg-white/[0.02] border-white/5 rounded-2xl px-5 py-4 text-sm font-bold text-white focus:border-[#4285F4]/40 focus:bg-white/[0.08] outline-none transition-all placeholder:text-gray-700";
+  const labelClass = "text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-3 block ml-1";
+
   return (
     <div 
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0a0b]/80 backdrop-blur-md p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
       onClick={(e) => e.target === e.currentTarget && onClose()}
+      style={{ animation: 'fadeIn 0.4s ease-out' }}
     >
-      <div className="bg-[#121214] border border-white/10 w-full max-w-md rounded-[2rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] flex flex-col max-h-[85vh] md:max-h-[80vh] relative overflow-hidden">
+      <div className="glass w-full max-w-xl rounded-[40px] shadow-2xl flex flex-col max-h-[90vh] relative overflow-hidden"
+        style={{ 
+          animation: 'scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+          border: '1px solid rgba(255,255,255,0.1)'
+        }}>
         
-        <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between bg-[#121214]/80 backdrop-blur-md z-20 shrink-0">
+        {/* Animated Background */}
+        <div className="absolute top-[0%] left-[-10%] w-[100%] h-[100%] bg-gradient-to-br from-[#4285F4]/5 to-transparent blur-[120px] pointer-events-none"></div>
+
+        {/* Header */}
+        <div className="px-10 py-8 border-b border-white/5 flex items-center justify-between shrink-0 relative z-10">
           <div>
-            <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[#d4af37]">
-              {initialData ? 'Edit Entry' : 'New Entry'}
-            </h3>
+            <div className="flex items-center gap-2 mb-1">
+               <i className={`fa-solid ${initialData ? 'fa-pen-to-square' : 'fa-plus-circle'} text-[#4285F4] text-xs`}></i>
+               <h3 className="text-2xl font-black text-white tracking-tighter">
+                 {initialData ? 'Record Amendment' : 'Protocol Entry'}
+               </h3>
+            </div>
+            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.3em]">Institutional Financial Documentation</p>
           </div>
-          <button 
-            onClick={onClose} 
-            className="w-8 h-8 rounded-full bg-white/5 text-zinc-500 hover:bg-white/10 flex items-center justify-center transition-all"
-          >
-            <i className="fa-solid fa-xmark text-sm"></i>
+          <button onClick={onClose} className="w-12 h-12 rounded-2xl glass text-gray-400 hover:text-white flex items-center justify-center transition-all hover:rotate-90">
+            <i className="fa-solid fa-xmark text-lg"></i>
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
-          <form onSubmit={handleSubmit} className="p-6 space-y-5 pb-10">
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-10 custom-scrollbar relative z-10">
+          <form onSubmit={handleSubmit} className="space-y-10">
             
-            <div className="flex bg-zinc-950 p-1 rounded-xl border border-white/5">
+            {/* Classification Matrix */}
+            <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/5">
               {(['expense', 'income', 'transfer'] as const).map(t => (
                 <button 
                   key={t} type="button" onClick={() => setType(t)}
-                  className={`flex-1 py-2.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${type === t ? 'bg-[#d4af37] text-[#0a0a0b]' : 'text-zinc-600 hover:text-zinc-400'}`}
+                  className={`flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all ${type === t ? 'bg-[#4285F4] text-white shadow-xl' : 'text-gray-500 hover:text-gray-300'}`}
                 >
                   {t}
                 </button>
               ))}
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="text-[8px] font-black text-zinc-600 uppercase tracking-[0.3em] mb-2 block ml-1">Amount</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-700 font-black text-lg">₹</span>
+            {/* Core Metrics */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className={labelClass}>Capital Intensity</label>
+                <div className="relative group">
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 font-black text-xl group-focus-within:text-[#4285F4] transition-colors">₹</span>
                   <input 
                     type="number" required value={inputAmount} 
                     onChange={e => setInputAmount(e.target.value)} 
-                    className="w-full bg-zinc-950 border border-white/5 rounded-xl pl-10 pr-4 py-3.5 font-black text-white text-xl focus:border-[#d4af37]/40 outline-none transition-all placeholder:text-zinc-800" 
+                    className={`${inputClass} pl-12 text-2xl font-black tracking-tighter`} 
                     placeholder="0.00" 
                   />
                 </div>
               </div>
-
-              <div>
-                <label className="text-[8px] font-black text-zinc-600 uppercase tracking-[0.3em] mb-2 block ml-1">Description</label>
-                <input 
-                  type="text" required value={description} 
-                  onChange={e => setDescription(e.target.value)} 
-                  className="w-full bg-zinc-950 border border-white/5 rounded-xl px-4 py-3 text-[11px] font-bold text-white focus:border-[#d4af37]/40 outline-none transition-all" 
-                  placeholder="e.g. Shopping, Rent, Salary" 
-                />
-              </div>
-
-              {type !== 'transfer' ? (
-                <div>
-                  <label className="text-[8px] font-black text-zinc-600 uppercase tracking-[0.3em] mb-2 block ml-1">Category</label>
-                  <select 
-                    value={selectedCategoryId} onChange={e => setSelectedCategoryId(e.target.value)} 
-                    className="w-full bg-zinc-950 border border-white/5 rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-[0.2em] text-zinc-300 outline-none appearance-none cursor-pointer"
-                  >
-                    <option value="">Select Category</option>
-                    {categories.filter(c => c.type === (type === 'income' ? 'income' : 'expense')).map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
-              ) : (
-                <div>
-                  <label className="text-[8px] font-black text-zinc-600 uppercase tracking-[0.3em] mb-2 block ml-1">Transfer To</label>
-                  <select 
-                    value={toAccountId} onChange={e => setToAccountId(e.target.value)} 
-                    className="w-full bg-zinc-950 border border-white/5 rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-[0.2em] text-zinc-300 outline-none appearance-none cursor-pointer"
-                  >
-                    {accounts.map(acc => (
-                      <option key={acc.id} value={acc.id} disabled={acc.id === fromAccountId}>{acc.name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[8px] font-black text-zinc-600 uppercase tracking-[0.3em] mb-2 block ml-1">Account</label>
-                  <select 
-                    value={fromAccountId} onChange={e => setFromAccountId(e.target.value)} 
-                    className="w-full bg-zinc-950 border border-white/5 rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-[0.1em] text-zinc-300 outline-none appearance-none cursor-pointer"
-                  >
-                    {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[8px] font-black text-zinc-600 uppercase tracking-[0.3em] mb-2 block ml-1">Date</label>
+              <div className="space-y-2">
+                <label className={labelClass}>Execution Chronology</label>
+                <div className="relative">
                   <input 
                     type="date" value={date} 
                     onChange={e => setDate(e.target.value)} 
-                    className="w-full bg-zinc-950 border border-white/5 rounded-xl px-4 py-3 text-[9px] font-black text-zinc-300 outline-none" 
+                    className={inputClass} 
                   />
                 </div>
               </div>
             </div>
 
-            <button 
-              type="submit" 
-              className="w-full py-4 bg-[#d4af37] text-[#0a0a0b] font-black rounded-xl text-[9px] uppercase tracking-[0.4em] shadow-lg hover:brightness-110 active:scale-[0.98] transition-all mt-6"
-            >
-              SAVE ENTRY
-            </button>
+            {/* Context Narrative */}
+            <div className="space-y-2">
+              <label className={labelClass}>Transactional Narrative</label>
+              <div className="relative">
+                <input 
+                  type="text" required value={description} 
+                  onChange={e => setDescription(e.target.value)} 
+                  className={inputClass} 
+                  placeholder="Summarize architectural movement..." 
+                />
+              </div>
+            </div>
+
+            {/* System Parameters */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className={labelClass}>{type === 'transfer' ? 'Origin Vault' : 'Principal Vault'}</label>
+                <div className="relative">
+                  <select 
+                    value={fromAccountId} onChange={e => setFromAccountId(e.target.value)} 
+                    className={inputClass}
+                  >
+                    {accounts.map(acc => <option key={acc.id} value={acc.id} className="bg-[#121214]">{acc.name}</option>)}
+                  </select>
+                  <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none"></i>
+                </div>
+              </div>
+
+              {type !== 'transfer' ? (
+                <div className="space-y-2">
+                  <label className={labelClass}>Sector Allocation</label>
+                  <div className="relative">
+                    <select 
+                      value={selectedCategoryId} onChange={e => setSelectedCategoryId(e.target.value)} 
+                      className={inputClass}
+                    >
+                      <option value="" className="bg-[#121214]">Select Sector</option>
+                      {categories.filter(c => c.type === (type === 'income' ? 'income' : 'expense')).map(cat => (
+                        <option key={cat.id} value={cat.id} className="bg-[#121214]">{cat.name}</option>
+                      ))}
+                    </select>
+                    <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none"></i>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <label className={labelClass}>Target Vault</label>
+                  <div className="relative">
+                    <select 
+                      value={toAccountId} onChange={e => setToAccountId(e.target.value)} 
+                      className={inputClass}
+                    >
+                      {accounts.map(acc => (
+                        <option key={acc.id} value={acc.id} disabled={acc.id === fromAccountId} className="bg-[#121214]">{acc.name}</option>
+                      ))}
+                    </select>
+                    <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none"></i>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Action Hub */}
+            <div className="pt-6">
+              <button 
+                type="submit" 
+                className="w-full py-5 rounded-[24px] text-xs font-black uppercase tracking-[0.4em] btn-primary-glow shine-hover shadow-2xl transition-all flex items-center justify-center gap-4"
+              >
+                <i className={`fa-solid ${initialData ? 'fa-pencil' : 'fa-database-medical'}`}></i>
+                {initialData ? 'Authorize Amendment' : 'Authorize Architectural Entry'}
+              </button>
+            </div>
           </form>
         </div>
       </div>
+
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+      `}</style>
     </div>
   );
 };

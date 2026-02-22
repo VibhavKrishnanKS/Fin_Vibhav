@@ -1,75 +1,264 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Zenith • Sovereign Ledger</title>
-    
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>VibhavWealth • Intelligent Finance</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
-        darkMode: 'class',
+        darkMode: "class",
         theme: {
           extend: {
-            colors: { gold: '#d4af37', obsidian: '#0a0a0b', card: '#121214' },
-            fontFamily: { display: ['Plus Jakarta Sans', 'sans-serif'], sans: ['Inter', 'sans-serif'] }
-          }
+            colors: {
+              primary: "#4285F4",
+              secondary: "#34A853",
+              accent: "#FBBC04",
+              critical: "#EA4335",
+              base: "#0a0f1a",
+              surface: "rgba(255,255,255,0.03)",
+            },
+            fontFamily: {
+              display: ["Plus Jakarta Sans", "sans-serif"],
+              sans: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --primary: #4285F4;
+        --secondary: #34A853;
+        --base: #0a0f1a;
+        --glow: rgba(66, 133, 244, 0.4);
+      }
+      
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      body {
+        background-color: var(--base);
+        color: #e8eaed;
+        margin: 0;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-family: 'Inter', sans-serif;
+      }
+
+      /* GLOBAL GLASSMORHPISM */
+      .glass {
+        background: rgba(255, 255, 255, 0.03) !important;
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      }
+
+      /* SUPER GLOWING BUTTONS */
+      button, .btn-glow {
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 0 20px var(--glow);
+        filter: brightness(1.1);
+      }
+
+      button:active {
+        transform: translateY(1px) scale(0.98);
+      }
+
+      .btn-primary-glow {
+        background: linear-gradient(135deg, #4285F4, #3b78e7) !important;
+        box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3) !important;
+      }
+      .btn-primary-glow:hover {
+        box-shadow: 0 0 25px rgba(66, 133, 244, 0.5) !important;
+      }
+
+      /* SHINE EFFECT ON HOVER */
+      .shine-hover {
+        overflow: hidden;
+      }
+      .shine-hover::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -150%;
+        width: 100%;
+        height: 200%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transform: rotate(25deg);
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .shine-hover:hover::after {
+        left: 150%;
+      }
+
+      #splash-screen {
+        position: fixed;
+        inset: 0;
+        background: #0a0f1a;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      
+      .splash-logo-container {
+        position: relative;
+        margin-bottom: 32px;
+      }
+      
+      .splash-logo {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 60px rgba(66, 133, 244, 0.4);
+        position: relative;
+        z-index: 2;
+      }
+      
+      .splash-logo-glow {
+        position: absolute;
+        inset: -20px;
+        background: radial-gradient(circle, rgba(66, 133, 244, 0.25) 0%, transparent 70%);
+        animation: breath 2s infinite ease-in-out;
+      }
+      
+      @keyframes breath {
+        0%, 100% { transform: scale(1); opacity: 0.4; }
+        50% { transform: scale(1.3); opacity: 0.7; }
+      }
+      
+      .splash-text {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 16px;
+        font-weight: 800;
+        color: white;
+        letter-spacing: 0.6em;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+        background: linear-gradient(to right, #fff, #9aa0a6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: fadeInUp 0.8s ease-out;
+      }
+      
+      .loading-bar-container {
+        width: 180px;
+        height: 2px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      
+      .loading-bar-fill {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(to right, var(--primary), var(--secondary));
+        border-radius: 10px;
+        animation: load 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      
+      @keyframes load {
+        0% { width: 0%; }
+        60% { width: 85%; }
+        100% { width: 100%; }
+      }
+
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Custom scrollbar */
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+      /* Input autofill styling */
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover, 
+      input:-webkit-autofill:focus {
+        -webkit-text-fill-color: white;
+        -webkit-box-shadow: 0 0 0px 1000px #1e1e1e inset;
+        transition: background-color 5000s ease-in-out 0s;
+      }
+    </style>
+    
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://esm.sh/react@^19.2.3",
+          "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+          "react/": "https://esm.sh/react@^19.2.3/",
+          "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+          "recharts": "https://esm.sh/recharts@^3.6.0",
+          "jspdf": "https://esm.sh/jspdf@^3.0.4",
+          "jspdf-autotable": "https://esm.sh/jspdf-autotable@^5.0.2",
+          "xlsx": "https://esm.sh/xlsx@^0.18.5",
+          "vite": "https://esm.sh/vite@^7.3.0",
+          "firebase/": "https://esm.sh/firebase@^12.7.0/"
         }
       }
     </script>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        body { background-color: #0a0a0b; color: #e4e4e7; margin: 0; overflow-x: hidden; }
-        #splash-screen {
-          position: fixed; inset: 0; background: #0a0a0b;
-          display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999;
-          transition: opacity 0.5s ease;
-        }
-        .splash-logo {
-          width: 64px; height: 64px; background: #d4af37; border-radius: 20px;
-          display: flex; align-items: center; justify-content: center; margin-bottom: 24px;
-          box-shadow: 0 0 40px rgba(212, 175, 55, 0.2);
-          animation: pulse 2s infinite ease-in-out;
-        }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        .splash-text { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 800; color: #3f3f46; text-transform: uppercase; letter-spacing: 0.5em; text-align: center; }
-    </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
-    "recharts": "https://esm.sh/recharts@^3.6.0",
-    "jspdf": "https://esm.sh/jspdf@^3.0.4",
-    "jspdf-autotable": "https://esm.sh/jspdf-autotable@^5.0.2",
-    "xlsx": "https://esm.sh/xlsx@^0.18.5",
-    "vite": "https://esm.sh/vite@^7.3.0",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
-    "firebase/": "https://esm.sh/firebase@^12.7.0/",
-    "express": "https://esm.sh/express@^5.2.1",
-    "pg": "https://esm.sh/pg@^8.16.3",
-    "cors": "https://esm.sh/cors@^2.8.5"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
-</head>
-<body>
+  </head>
+  <body>
     <div id="splash-screen">
-      <div class="splash-logo">
-        <svg width="32" height="32" viewBox="0 0 100 100" fill="none"><path d="M50 20L85 80H15L50 20Z" fill="#0a0a0b"/></svg>
+      <div class="splash-logo-container">
+        <div class="splash-logo-glow"></div>
+        <div class="splash-logo">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L21 20H3L12 2Z" fill="white" />
+            <path d="M12 7L18.5 20H5.5L12 7Z" fill="rgba(0,0,0,0.1)" />
+          </svg>
+        </div>
       </div>
-      <div class="splash-text">Sovereign Ledger Initializing...</div>
+      <div class="splash-text">VibhavWealth</div>
+      <div class="loading-bar-container">
+        <div class="loading-bar-fill"></div>
+      </div>
     </div>
 
     <div id="root"></div>
-    <script type="module" src="./index.tsx"></script>
-<script type="module" src="/index.tsx"></script>
-</body>
+    <script type="module" src="/index.tsx"></script>
+    <script>
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          const splash = document.getElementById('splash-screen');
+          if (splash) {
+            splash.style.opacity = '0';
+            setTimeout(() => splash.remove(), 800);
+          }
+        }, 2500);
+      });
+    </script>
+  </body>
 </html>
