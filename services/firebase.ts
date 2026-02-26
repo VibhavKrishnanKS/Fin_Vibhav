@@ -27,13 +27,13 @@ import {
 import type { Transaction, Account, Category } from "../types";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCtjGB-Ssh1Tqug2H3JODo9fZbkDUpK_8s",
-  authDomain: "zenith-ledger-f6ce7.firebaseapp.com",
-  projectId: "zenith-ledger-f6ce7",
-  storageBucket: "zenith-ledger-f6ce7.firebasestorage.app",
-  messagingSenderId: "161082426870",
-  appId: "1:161082426870:web:45d7b7d8285b8e0d39b3d7",
-  measurementId: "G-DFQY4Z2NKN"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase

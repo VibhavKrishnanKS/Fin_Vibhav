@@ -3,8 +3,8 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Transaction, Category } from "../types";
 
 export const getFinancialInsights = async (transactions: Transaction[], categories: Category[]) => {
-  // Always initialize right before use with the current process.env.API_KEY
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Always initialize right before use with the current environment variable
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
   
   const transactionsSummary = transactions.slice(0, 50).map(t => {
     const cat = categories.find(c => c.id === t.categoryId);
