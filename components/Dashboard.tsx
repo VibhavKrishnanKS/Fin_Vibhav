@@ -78,10 +78,10 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
       {/* Metrics Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {[
-          { label: 'Revenue Flow', value: totalIncome, color: '#34A853', icon: 'fa-arrow-up-right-dots' },
-          { label: 'Asset Outflow', value: totalExpense, color: '#EA4335', icon: 'fa-arrow-down-left-and-arrow-up-right-to-center' },
-          { label: 'Liquidity Surplus', value: totalIncome - totalExpense, color: '#4285F4', icon: 'fa-vault' },
-          { label: 'Active Ledgers', value: transactions.length, color: '#FBBC04', icon: 'fa-database', isCnt: true },
+          { label: 'Total Income', value: totalIncome, color: '#34A853', icon: 'fa-arrow-up-right-dots' },
+          { label: 'Total Expense', value: totalExpense, color: '#EA4335', icon: 'fa-arrow-down-left-and-arrow-up-right-to-center' },
+          { label: 'Net Balance', value: totalIncome - totalExpense, color: '#4285F4', icon: 'fa-vault' },
+          { label: 'Transactions', value: transactions.length, color: '#FBBC04', icon: 'fa-database', isCnt: true },
         ].map((s, i) => (
           <div key={i} className="glass p-5 rounded-[28px] relative group overflow-hidden shine-hover" style={{
             animation: `fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.1}s both`,
@@ -104,19 +104,19 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
       <div className="glass p-5 sm:p-8 rounded-[36px] relative overflow-hidden" style={{ animation: 'fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both' }}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h4 className="text-lg font-bold text-white tracking-tight">Financial Trajectory</h4>
+            <h4 className="text-lg font-bold text-white tracking-tight">Income vs Expenses</h4>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">Institutional Analysis • Last 15 Cycles</span>
+              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">Activity • Last 15 Days</span>
             </div>
           </div>
           <div className="flex items-center gap-6">
              <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full shadow-[0_0_10px_#4285F4]" style={{ border: '2px solid #4285F4' }}></div>
-                <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Inflow</span>
+                <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Income</span>
              </div>
              <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full opacity-60" style={{ border: '2px solid #EA4335' }}></div>
-                <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Outflow</span>
+                <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Expense</span>
              </div>
           </div>
         </div>
@@ -147,8 +147,8 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
       {/* Sector Allocation Modals (Pie Charts) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
         {[
-          { title: 'Capital Allocation', subtitle: 'Revenue Stream Distribution', data: incomePieData, colors: INCOME_COLORS, accent: '#34A853' },
-          { title: 'Operating Expenses', subtitle: 'System Outflow Breakdown', data: expensePieData, colors: EXPENSE_COLORS, accent: '#EA4335' },
+          { title: 'Income Sources', subtitle: 'Where your money comes from', data: incomePieData, colors: INCOME_COLORS, accent: '#34A853' },
+          { title: 'Expenses', subtitle: 'Where your money goes', data: expensePieData, colors: EXPENSE_COLORS, accent: '#EA4335' },
         ].map((chart, ci) => (
           <div key={ci} className="glass p-6 sm:p-8 rounded-[36px] relative" style={{
             animation: `fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${0.4 + ci * 0.1}s both`,
@@ -200,7 +200,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
       {CATEGORY_STATS.length > 0 && (
         <div style={{ animation: 'fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both' }}>
           <div className="flex items-center justify-between mb-6 px-1">
-            <h4 className="text-[11px] font-black uppercase text-gray-500 tracking-[0.3em]">Operational Metrics</h4>
+            <h4 className="text-[11px] font-black uppercase text-gray-500 tracking-[0.3em]">Category Breakdown</h4>
             <div className="h-[1px] flex-1 mx-6 bg-white/5"></div>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">

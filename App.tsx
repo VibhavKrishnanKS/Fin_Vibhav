@@ -113,9 +113,9 @@ const App: React.FC = () => {
         await addFirebaseTransaction(user.uid, data);
         await saveUserData(user.uid, finalAccs, categories);
       }
-      triggerToast("Ledger Synchronized");
+      triggerToast("Changes Saved");
     } catch (err) {
-      triggerToast("Sync Interrupted");
+      triggerToast("Save Error");
     }
     setEditingTransaction(null);
     setIsTxModalOpen(false);
@@ -129,9 +129,9 @@ const App: React.FC = () => {
       const finalAccs = calculateNewBalances([...accounts], tx, -1);
       await deleteFirebaseTransaction(user.uid, id);
       await saveUserData(user.uid, finalAccs, categories);
-      triggerToast("Record Purged");
+      triggerToast("Entry Deleted");
     } catch (err) {
-      triggerToast("Purge Failed");
+      triggerToast("Delete Failed");
     }
   };
 
@@ -139,7 +139,7 @@ const App: React.FC = () => {
     if (!user) return;
     try {
       await saveUserData(user.uid, newAccounts, categories);
-      triggerToast("Vaults Updated");
+      triggerToast("Accounts Updated");
     } catch (err) {
       triggerToast("Update Failed");
     }
@@ -149,7 +149,7 @@ const App: React.FC = () => {
     if (!user) return;
     try {
       await saveUserData(user.uid, accounts, newCategories);
-      triggerToast("Sectors Updated");
+      triggerToast("Categories Updated");
     } catch (err) {
       triggerToast("Update Failed");
     }
@@ -175,17 +175,17 @@ const App: React.FC = () => {
             </div>
             <div>
               <h1 className="text-lg font-display font-black tracking-tighter text-white leading-none">VibhavWealth</h1>
-              <p className="text-[9px] text-gray-500 font-bold uppercase tracking-[0.2em] mt-1.5 opacity-60">Sovereign Alpha</p>
+              <p className="text-[9px] text-gray-500 font-bold uppercase tracking-[0.2em] mt-1.5 opacity-60">Personal Finance</p>
             </div>
           </div>
 
           {/* Navigation Matrix */}
           <nav className="space-y-2 flex-1">
-            <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.3em] px-3 mb-4">Command Center</p>
+            <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.3em] px-3 mb-4">Menu</p>
             {[
-              { id: 'dashboard', icon: 'fa-chart-pie-simple', label: 'Intelligence' },
-              { id: 'transactions', icon: 'fa-microchip', label: 'Ledger' },
-              { id: 'settings', icon: 'fa-sliders-up', label: 'Parameters' }
+              { id: 'dashboard', icon: 'fa-chart-pie-simple', label: 'Overview' },
+              { id: 'transactions', icon: 'fa-microchip', label: 'Transactions' },
+              { id: 'settings', icon: 'fa-sliders-up', label: 'Settings' }
             ].map(item => (
               <button
                 key={item.id} onClick={() => setActiveTab(item.id as any)}
@@ -212,12 +212,12 @@ const App: React.FC = () => {
               </div>
               <div className="overflow-hidden flex-1">
                 <p className="text-[11px] font-bold text-gray-300 truncate tracking-tight">{user.email?.split('@')[0]}</p>
-                <p className="text-[9px] text-gray-600 font-bold truncate tracking-widest uppercase mt-0.5">Primary Holder</p>
+                <p className="text-[9px] text-gray-600 font-bold truncate tracking-widest uppercase mt-0.5">User</p>
               </div>
             </div>
             <button onClick={logoutUser} className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 hover:text-red-400 hover:bg-red-500/5 transition-all group">
               <i className="fa-solid fa-power-off text-[11px] transition-transform group-hover:rotate-90"></i>
-              Terminate Session
+              Logout
             </button>
           </div>
         </div>
@@ -230,10 +230,10 @@ const App: React.FC = () => {
            border: '1px solid rgba(255,255,255,0.1)'
         }}>
           {[
-            { id: 'dashboard', icon: 'fa-chart-column', label: 'Core' },
-            { id: 'transactions', icon: 'fa-list-ul', label: 'Logs' },
-            { id: 'add', icon: 'fa-plus', label: 'Input', isAction: true },
-            { id: 'settings', icon: 'fa-gears', label: 'Config' },
+            { id: 'dashboard', icon: 'fa-chart-column', label: 'Home' },
+            { id: 'transactions', icon: 'fa-list-ul', label: 'History' },
+            { id: 'add', icon: 'fa-plus', label: 'Add', isAction: true },
+            { id: 'settings', icon: 'fa-gears', label: 'Settings' },
           ].map(item => item.isAction ? (
             <button key="add" onClick={() => setIsTxModalOpen(true)}
               className="w-14 h-14 rounded-2xl flex items-center justify-center text-white -mt-8 active:scale-90 transition-all btn-primary-glow shine-hover shadow-2xl"
@@ -261,7 +261,7 @@ const App: React.FC = () => {
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]"></span>
-                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.4em]">Security Status: Encrypted</p>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.4em]">Safe & Secure</p>
               </div>
               <h2 className="text-3xl sm:text-4xl font-display font-black tracking-tighter text-white capitalize">{activeTab}</h2>
             </div>

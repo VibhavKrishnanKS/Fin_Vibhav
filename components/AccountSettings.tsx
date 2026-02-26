@@ -56,15 +56,15 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ accounts, onAdd, onUp
         <div>
           <div className="flex items-center gap-2 mb-1">
              <i className="fa-solid fa-vault text-[#4285F4] text-xs"></i>
-             <h3 className="text-2xl font-black text-white tracking-tighter uppercase">Vault Management</h3>
+             <h3 className="text-2xl font-black text-white tracking-tighter uppercase">Manage Accounts</h3>
           </div>
-          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">Institutional Asset Allocation</p>
+          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">Set up your bank accounts and cards</p>
         </div>
         <button onClick={() => setIsAdding(!isAdding)}
           className={`w-full sm:w-auto px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 active:scale-95 flex items-center gap-3 justify-center shine-hover ${isAdding ? 'glass text-white' : 'btn-primary-glow text-white shadow-xl'}`}
         >
           <i className={`fa-solid ${isAdding ? 'fa-xmark' : 'fa-plus'} text-xs`}></i>
-          {isAdding ? 'Decline' : 'Initalize Vault'}
+          {isAdding ? 'Decline' : 'Add Account'}
         </button>
       </div>
 
@@ -72,24 +72,24 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ accounts, onAdd, onUp
         <form onSubmit={handleAdd} className="mb-10 p-6 sm:p-8 rounded-[32px] glass space-y-6 relative z-10" style={{ animation: 'slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-1">
-              <label className={labelClass}>Asset Identifier</label>
+              <label className={labelClass}>Account Name</label>
               <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Primary Reserve"
                 className={inputClass} />
             </div>
             <div className="space-y-1">
-              <label className={labelClass}>Asset Class</label>
+              <label className={labelClass}>Account Type</label>
               <div className="relative">
                 <select value={newType} onChange={(e) => setNewType(e.target.value as any)}
                   className={inputClass}>
-                  <option value="bank" className="bg-[#121214]">Institutional Bank</option>
-                  <option value="credit" className="bg-[#121214]">Credit Facility</option>
-                  <option value="cash" className="bg-[#121214]">Liquid Reserve</option>
+                  <option value="bank" className="bg-[#121214]">Bank Account</option>
+                  <option value="credit" className="bg-[#121214]">Credit Card</option>
+                  <option value="cash" className="bg-[#121214]">Cash</option>
                 </select>
                 <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none text-xs"></i>
               </div>
             </div>
             <div className="space-y-1">
-              <label className={labelClass}>Inital Valuation</label>
+              <label className={labelClass}>Initial Balance</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-bold">₹</span>
                 <input type="number" value={newBalance} onChange={(e) => setNewBalance(e.target.value)} placeholder="0.00"
@@ -98,7 +98,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ accounts, onAdd, onUp
             </div>
             {newType === 'credit' && (
               <div className="space-y-1">
-                <label className={labelClass}>Credit Threshold</label>
+                <label className={labelClass}>Credit Limit</label>
                 <div className="relative">
                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-bold">₹</span>
                    <input type="number" value={newLimit} onChange={(e) => setNewLimit(e.target.value)} placeholder="500000"
@@ -109,7 +109,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ accounts, onAdd, onUp
           </div>
           <div className="flex justify-end pt-4">
             <button type="submit" className="px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-white btn-primary-glow shadow-xl active:scale-95 transition-all">
-              Commit Vault
+              Save Account
             </button>
           </div>
         </form>
@@ -131,8 +131,8 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ accounts, onAdd, onUp
                     <option value="bank" className="bg-[#121214]">Bank</option><option value="credit" className="bg-[#121214]">Credit</option><option value="cash" className="bg-[#121214]">Cash</option>
                   </select>
                 </div>
-                <button onClick={() => handleUpdate(acc.id)} className="py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white btn-primary-glow">Authorize</button>
-                <button onClick={() => setEditingId(null)} className="py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest glass text-gray-400">Abort</button>
+                <button onClick={() => handleUpdate(acc.id)} className="py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white btn-primary-glow">Save</button>
+                <button onClick={() => setEditingId(null)} className="py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest glass text-gray-400">Cancel</button>
               </div>
             ) : (
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
@@ -145,7 +145,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ accounts, onAdd, onUp
                     <p className="text-base font-black text-white tracking-tight uppercase">{acc.name}</p>
                     <div className="flex items-center gap-2 mt-1">
                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: acc.color }}></span>
-                       <p className="text-[9px] text-gray-600 font-black uppercase tracking-[0.2em]">{acc.type === 'bank' ? 'Treasury' : acc.type === 'credit' ? 'Liability' : 'Reserve'}</p>
+                       <p className="text-[9px] text-gray-600 font-black uppercase tracking-[0.2em]">{acc.type === 'bank' ? 'Bank' : acc.type === 'credit' ? 'Credit' : 'Cash'}</p>
                     </div>
                   </div>
                 </div>
@@ -155,7 +155,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ accounts, onAdd, onUp
                        <span className="text-xs text-gray-600 mr-1">{CURRENCY_SYMBOL}</span>
                        {acc.balance.toLocaleString()}
                     </p>
-                    {acc.type === 'credit' && <p className="text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-1">Threshold: {CURRENCY_SYMBOL}{acc.creditLimit?.toLocaleString()}</p>}
+                    {acc.type === 'credit' && <p className="text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-1">Limit: {CURRENCY_SYMBOL}{acc.creditLimit?.toLocaleString()}</p>}
                   </div>
                   <div className="flex gap-2 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300">
                     <button onClick={() => startEditing(acc)} className="w-10 h-10 rounded-xl glass flex items-center justify-center text-gray-500 hover:text-white hover:bg-[#4285F4]/20 transition-all active:scale-90">

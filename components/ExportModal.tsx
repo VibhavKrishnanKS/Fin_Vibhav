@@ -101,9 +101,9 @@ const ExportModal: React.FC<ExportModalProps> = ({ transactions, accounts, categ
           <div>
             <div className="flex items-center gap-2 mb-1">
                <i className="fa-solid fa-file-export text-[#4285F4] text-xs"></i>
-               <h3 className="text-2xl font-black text-white tracking-tighter">Report Dispatcher</h3>
+               <h3 className="text-2xl font-black text-white tracking-tighter">Export Data</h3>
             </div>
-            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.3em]">Institutional Data Export Interface</p>
+            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.3em]">Download your transactions</p>
           </div>
           <button onClick={onClose} className="w-12 h-12 rounded-2xl glass text-gray-400 hover:text-white flex items-center justify-center transition-all hover:rotate-90">
             <i className="fa-solid fa-xmark text-lg"></i>
@@ -115,7 +115,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ transactions, accounts, categ
           
           {/* Format Section */}
           <section>
-            <label className={labelClass}>Transmission Format</label>
+            <label className={labelClass}>File Format</label>
             <div className="grid grid-cols-4 gap-4">
               {(['pdf', 'csv', 'xlsx', 'json'] as ExportFormat[]).map((f) => (
                 <button
@@ -131,7 +131,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ transactions, accounts, categ
 
           {/* Period Selection */}
           <section>
-            <label className={labelClass}>Analytical Periodicity</label>
+            <label className={labelClass}>Time Period</label>
             <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/5">
               {(['daily', 'weekly', 'monthly', 'yearly'] as ExportPeriod[]).map((p) => (
                 <button
@@ -144,7 +144,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ transactions, accounts, categ
             </div>
           </section>
 
-          {/* Precision Controls */}
+          {/* Date Selection */}
           <div className="pt-2">
             {(period === 'daily' || period === 'weekly') && (
               <section className="glass p-6 rounded-[32px] border border-white/10">
@@ -178,7 +178,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ transactions, accounts, categ
             {period === 'monthly' && (
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className={labelClass}>Fiscal Month</label>
+                  <label className={labelClass}>Month</label>
                   <div className="relative">
                     <select value={selectedMonth} onChange={(e) => setSelectedMonth(parseInt(e.target.value))} className={selectClass}>
                       {months.map((m, i) => <option key={i} value={i} className="bg-[#1e1e1e]">{m}</option>)}
@@ -187,7 +187,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ transactions, accounts, categ
                   </div>
                 </div>
                 <div>
-                  <label className={labelClass}>Fiscal Year</label>
+                  <label className={labelClass}>Year</label>
                   <div className="relative">
                     <select value={selectedMonthYear} onChange={(e) => setSelectedMonthYear(parseInt(e.target.value))} className={selectClass}>
                       {yearsGrid.map(y => <option key={y} value={y} className="bg-[#1e1e1e]">{y}</option>)}
@@ -212,7 +212,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ transactions, accounts, categ
             )}
           </div>
 
-          {/* Action Hub */}
+          {/* Actions */}
           <div className="pt-6">
             <button
               onClick={handleExport}
@@ -220,9 +220,9 @@ const ExportModal: React.FC<ExportModalProps> = ({ transactions, accounts, categ
               className="w-full py-5 rounded-[24px] text-xs font-black uppercase tracking-[0.4em] btn-primary-glow shine-hover shadow-2xl transition-all flex items-center justify-center gap-4 disabled:opacity-50"
             >
               {isExporting ? <i className="fa-solid fa-satellite animate-pulse"></i> : <i className="fa-solid fa-paper-plane"></i>}
-              {isExporting ? 'Encapsulating Data...' : 'Confirm and Dispatch Report'}
+              {isExporting ? 'Downloading...' : 'Download Report'}
             </button>
-            <p className="text-center text-[9px] text-gray-600 font-bold uppercase tracking-[0.2em] mt-4 opacity-50">Secure end-to-end institutional encryption enabled</p>
+            <p className="center text-[9px] text-gray-600 font-bold uppercase tracking-[0.2em] mt-4 opacity-50">Your data is kept safe and private</p>
           </div>
         </div>
       </div>

@@ -25,36 +25,36 @@ const CategorySettings: React.FC<CategorySettingsProps> = ({ categories, onAdd, 
     <div className="glass rounded-[36px] p-6 sm:p-10 relative overflow-hidden" style={{ animation: 'fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both' }}>
       <div className="mb-10 flex items-center gap-2">
          <i className="fa-solid fa-tags text-[#4285F4] text-xs"></i>
-         <h3 className="text-2xl font-black text-white tracking-tighter uppercase">Sector Taxonomy</h3>
+         <h3 className="text-2xl font-black text-white tracking-tighter uppercase">Manage Categories</h3>
       </div>
 
-      {/* Protocol Injector Form */}
+      {/* Add Category Form */}
       <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-4 mb-10 p-6 rounded-[28px] glass relative overflow-hidden border-white/5">
         <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500/20"></div>
         <div className="flex-1 space-y-2">
-           <label className={labelClass}>Sector Descriptor</label>
-           <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Assign sector name..."
+           <label className={labelClass}>Category Name</label>
+           <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Salary, Rent, Food..."
              className={inputClass} />
         </div>
         <div className="sm:w-48 space-y-2">
-           <label className={labelClass}>Classification</label>
+           <label className={labelClass}>Type</label>
            <div className="relative">
               <select value={newType} onChange={(e) => setNewType(e.target.value as any)}
                 className={inputClass}>
-                <option value="expense" className="bg-[#121214]">Outflow Sector</option>
-                <option value="income" className="bg-[#121214]">Revenue Sector</option>
+                <option value="expense" className="bg-[#121214]">Expense</option>
+                <option value="income" className="bg-[#121214]">Income</option>
               </select>
               <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none text-xs"></i>
            </div>
         </div>
         <div className="flex items-end">
            <button type="submit" className="w-full sm:w-auto px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-white btn-primary-glow shadow-xl active:scale-95 transition-all">
-             Deploy
+             Add
            </button>
         </div>
       </form>
 
-      {/* Taxonomy Matrix */}
+      {/* Category List */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {(['income', 'expense'] as const).map(type => {
           const items = categories.filter(c => c.type === type);
@@ -64,9 +64,9 @@ const CategorySettings: React.FC<CategorySettingsProps> = ({ categories, onAdd, 
               <div className="flex items-center justify-between pb-3 border-b border-white/5">
                 <div className="flex items-center gap-3">
                   <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_10px_currentColor]" style={{ color, background: color }}></div>
-                  <h4 className="text-[11px] font-black text-white uppercase tracking-[0.3em]">{type} Matrix</h4>
+                  <h4 className="text-[11px] font-black text-white uppercase tracking-[0.3em]">{type} Categories</h4>
                 </div>
-                <span className="text-[10px] text-gray-700 font-bold uppercase tracking-widest">{items.length} Units</span>
+                <span className="text-[10px] text-gray-700 font-bold uppercase tracking-widest">{items.length} Items</span>
               </div>
               <div className="grid grid-cols-1 gap-2.5">
                 {items.map((c, i) => (
@@ -80,7 +80,7 @@ const CategorySettings: React.FC<CategorySettingsProps> = ({ categories, onAdd, 
                          <input autoFocus value={editName} onChange={(e) => setEditName(e.target.value)}
                            onBlur={() => handleUpdate(c.id)} onKeyDown={(e) => e.key === 'Enter' && handleUpdate(c.id)}
                            className={`${inputClass} !py-2`} />
-                         <button onClick={() => handleUpdate(c.id)} className="px-4 py-2 glass text-[9px] font-black text-[#4285F4] uppercase tracking-widest">Commit</button>
+                         <button onClick={() => handleUpdate(c.id)} className="px-4 py-2 glass text-[9px] font-black text-[#4285F4] uppercase tracking-widest">Save</button>
                       </div>
                     ) : (
                       <>
@@ -104,7 +104,7 @@ const CategorySettings: React.FC<CategorySettingsProps> = ({ categories, onAdd, 
                 ))}
                 {items.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-10 glass rounded-3xl opacity-30">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em]">Matrix Empty</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em]">No Categories</p>
                   </div>
                 )}
               </div>

@@ -60,10 +60,10 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
             <div className="flex items-center gap-2 mb-1">
                <i className={`fa-solid ${initialData ? 'fa-pen-to-square' : 'fa-plus-circle'} text-[#4285F4] text-xs`}></i>
                <h3 className="text-2xl font-black text-white tracking-tighter">
-                 {initialData ? 'Record Amendment' : 'Protocol Entry'}
+                 {initialData ? 'Edit Entry' : 'Add Transaction'}
                </h3>
             </div>
-            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.3em]">Institutional Financial Documentation</p>
+            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.3em]">Enter your details below</p>
           </div>
           <button onClick={onClose} className="w-12 h-12 rounded-2xl glass text-gray-400 hover:text-white flex items-center justify-center transition-all hover:rotate-90">
             <i className="fa-solid fa-xmark text-lg"></i>
@@ -89,7 +89,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
             {/* Core Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               <div className="space-y-2">
-                <label className={labelClass}>Capital Intensity</label>
+                <label className={labelClass}>Amount</label>
                 <div className="relative group">
                   <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 font-black text-xl group-focus-within:text-[#4285F4] transition-colors">₹</span>
                   <input 
@@ -101,7 +101,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
                 </div>
               </div>
               <div className="space-y-2">
-                <label className={labelClass}>Execution Chronology</label>
+                <label className={labelClass}>Date</label>
                 <div className="relative">
                   <input 
                     type="date" value={date} 
@@ -114,13 +114,13 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
 
             {/* Context Narrative */}
             <div className="space-y-2">
-              <label className={labelClass}>Transactional Narrative</label>
+              <label className={labelClass}>Description</label>
               <div className="relative">
                 <input 
                   type="text" required value={description} 
                   onChange={e => setDescription(e.target.value)} 
                   className={inputClass} 
-                  placeholder="Summarize architectural movement..." 
+                  placeholder="What was this for?" 
                 />
               </div>
             </div>
@@ -128,7 +128,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
             {/* System Parameters */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               <div className="space-y-2">
-                <label className={labelClass}>{type === 'transfer' ? 'Origin Vault' : 'Principal Vault'}</label>
+                <label className={labelClass}>{type === 'transfer' ? 'From Account' : 'Account'}</label>
                 <div className="relative">
                   <select 
                     value={fromAccountId} onChange={e => setFromAccountId(e.target.value)} 
@@ -142,13 +142,13 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
 
               {type !== 'transfer' ? (
                 <div className="space-y-2">
-                  <label className={labelClass}>Sector Allocation</label>
+                  <label className={labelClass}>Category</label>
                   <div className="relative">
                     <select 
                       value={selectedCategoryId} onChange={e => setSelectedCategoryId(e.target.value)} 
                       className={inputClass}
                     >
-                      <option value="" className="bg-[#121214]">Select Sector</option>
+                      <option value="" className="bg-[#121214]">Select Category</option>
                       {categories.filter(c => c.type === (type === 'income' ? 'income' : 'expense')).map(cat => (
                         <option key={cat.id} value={cat.id} className="bg-[#121214]">{cat.name}</option>
                       ))}
@@ -158,7 +158,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <label className={labelClass}>Target Vault</label>
+                  <label className={labelClass}>To Account</label>
                   <div className="relative">
                     <select 
                       value={toAccountId} onChange={e => setToAccountId(e.target.value)} 
@@ -180,8 +180,8 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
                 type="submit" 
                 className="w-full py-5 rounded-[24px] text-xs font-black uppercase tracking-[0.4em] btn-primary-glow shine-hover shadow-2xl transition-all flex items-center justify-center gap-4"
               >
-                <i className={`fa-solid ${initialData ? 'fa-pencil' : 'fa-database-medical'}`}></i>
-                {initialData ? 'Authorize Amendment' : 'Authorize Architectural Entry'}
+                <i className={`fa-solid ${initialData ? 'fa-pencil' : 'fa-plus'}`}></i>
+                {initialData ? 'Update Entry' : 'Add Entry'}
               </button>
             </div>
           </form>

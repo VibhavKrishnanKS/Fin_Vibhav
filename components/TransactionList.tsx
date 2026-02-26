@@ -33,12 +33,12 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, categor
 
   return (
     <div className="space-y-6 max-w-full pb-20" style={{ animation: 'fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }}>
-      {/* Precision Search & Command Bar */}
+      {/* Search & Filter */}
       <div className="flex flex-col sm:flex-row gap-4 items-stretch">
         <div className="flex-1 relative group">
           <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm group-focus-within:text-[#4285F4] transition-colors"></i>
           <input
-            type="text" placeholder="Identify record by description..."
+            type="text" placeholder="Search transactions..."
             className="w-full pl-11 pr-4 py-4 rounded-2xl glass text-xs font-bold uppercase tracking-widest outline-none transition-all duration-300 text-white placeholder:text-gray-700 placeholder:font-bold focus:ring-2 focus:ring-[#4285F4]/20"
             value={search} onChange={(e) => setSearch(e.target.value)}
           />
@@ -51,12 +51,12 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, categor
               borderColor: isFilterOpen ? 'rgba(66,133,244,0.3)' : 'rgba(255,255,255,0.05)'
             }}
           >
-            <i className="fa-solid fa-filter-list text-xs"></i> Taxonomy
+            <i className="fa-solid fa-filter-list text-xs"></i> Filter
           </button>
           <button onClick={onOpenExport}
             className="flex-1 sm:flex-none px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-3 justify-center text-white btn-primary-glow shine-hover shadow-xl"
           >
-            <i className="fa-solid fa-paper-plane text-xs"></i> Dispatch
+            <i className="fa-solid fa-paper-plane text-xs"></i> Export
           </button>
         </div>
       </div>
@@ -85,7 +85,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, categor
                 {new Date(date).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
               </h5>
               <div className="flex-1 h-[1px] bg-white/5"></div>
-              <span className="text-[9px] text-gray-600 font-bold uppercase tracking-widest">{txs.length} Entries</span>
+              <span className="text-[9px] text-gray-600 font-bold uppercase tracking-widest">{txs.length} Transactions</span>
             </div>
             <div className="space-y-2.5">
               {txs.map((t, ti) => {
@@ -153,8 +153,8 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, categor
             <div className="w-24 h-24 rounded-[32px] glass flex items-center justify-center mb-8 relative group shine-hover overflow-hidden">
                <i className="fa-solid fa-cloud-binary text-4xl text-gray-700 group-hover:scale-110 transition-transform duration-700"></i>
             </div>
-            <p className="text-[11px] font-black uppercase tracking-[0.4em] text-gray-500">Void Detected</p>
-            <p className="text-[9px] text-gray-700 font-bold uppercase tracking-widest mt-2">Awaiting the first architectural entry...</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.4em] text-gray-500">No Transactions</p>
+            <p className="text-[9px] text-gray-700 font-bold uppercase tracking-widest mt-2">Start by adding a new transaction!</p>
           </div>
         )}
       </div>
