@@ -1,13 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
-import { loginUser, registerUser } from '../services/firebase';
+import { loginUser, registerUser, resetPassword } from '../services/firebase';
 
 const AuthView: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [isPasswordReset, setIsPasswordReset] = useState(false);
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -16,17 +19,42 @@ const AuthView: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setMessage('');
+    
+    if (isPasswordReset) {
+      if (!email) { setError("Please provide your institutional email."); return; }
+      setLoading(true);
+      try {
+        await resetPassword(email);
+        setMessage("Password reset credentials sent to your inbox.");
+        setTimeout(() => { setIsPasswordReset(false); setIsLogin(true); }, 5000);
+      } catch (err: any) {
+        setError(err.message || "Failed to initiate reset.");
+      } finally { setLoading(false); }
+      return;
+    }
+
     if (!isLogin && password !== confirmPassword) { setError("Passwords do not match."); return; }
+    if (!isLogin && !username) { setError("Username is required for institutional onboarding."); return; }
+    
     setLoading(true);
     try {
-      if (isLogin) await loginUser(email, password);
-      else await registerUser(email, password);
+      if (isLogin) await loginUser(email, password); // email here is the identifier (email or username)
+      else await registerUser(email, password, username);
     } catch (err: any) {
       let msg = err.message || "Authentication failed.";
-      if (msg.includes("auth/email-already-in-use")) msg = "Already registered.";
+      if (msg.includes("auth/email-already-in-use")) msg = "Identifier already registered.";
       if (msg.includes("auth/invalid-credential")) msg = "Invalid credentials.";
+      if (msg.includes("auth/user-not-found") || msg.includes("Username not found")) msg = "Stakeholder not found.";
       setError(msg);
     } finally { setLoading(false); }
+  };
+
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setIsPasswordReset(false);
+    setError('');
+    setMessage('');
   };
 
   return (
@@ -51,56 +79,73 @@ const AuthView: React.FC = () => {
               background: 'linear-gradient(135deg, #4285F4, #34A853)',
               boxShadow: '0 12px 40px rgba(66,133,244,0.4), 0 0 100px rgba(66,133,244,0.1)',
             }}>
-              <i className={`fa-solid ${isLogin ? 'fa-fingerprint' : 'fa-user-plus'} text-white text-3xl transition-transform duration-500 group-hover:scale-110`}></i>
+              <i className={`fa-solid ${isPasswordReset ? 'fa-key' : isLogin ? 'fa-fingerprint' : 'fa-user-plus'} text-white text-3xl transition-transform duration-500 group-hover:scale-110`}></i>
             </div>
             <div className="absolute -inset-4 rounded-full animate-pulse opacity-40" style={{ background: 'radial-gradient(circle, rgba(66,133,244,0.2) 0%, transparent 70%)' }} />
           </div>
           <h1 className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight text-white mb-2">
-            {isLogin ? 'VibhavWealth' : 'Join Legacy'}
+            {isPasswordReset ? 'Reset Password' : (isLogin ? 'VibhavWealth' : 'Sign Up')}
           </h1>
           <p className="text-gray-500 text-xs sm:text-sm font-medium tracking-wide">
-            {isLogin ? 'Intelligent Wealth Architecture' : 'Begin your institutional financial journey'}
+            {isPasswordReset ? 'Enter your email to reset access' : (isLogin ? 'Manage your wealth' : 'Create your account')}
           </p>
         </div>
 
         <div className="glass rounded-[32px] p-6 sm:p-10 relative overflow-hidden" style={{ boxShadow: '0 30px 60px rgba(0,0,0,0.5)' }}>
           <div className="absolute top-0 left-0 right-0 h-[2px]" style={{
-            background: isLogin
+            background: isPasswordReset ? 'linear-gradient(90deg, transparent, #FBBC04, transparent)' : (isLogin
               ? 'linear-gradient(90deg, transparent, #4285F4, #34A853, transparent)'
-              : 'linear-gradient(90deg, transparent, #34A853, #4285F4, transparent)',
+              : 'linear-gradient(90deg, transparent, #34A853, #4285F4, transparent)'),
             transition: 'background 0.5s ease',
           }} />
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Account Identifier</label>
+              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">{isLogin && !isPasswordReset ? 'Email or Username' : 'Email'}</label>
               <div className="relative">
-                <i className="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-600"></i>
+                <i className={`fa-solid ${isLogin && !isPasswordReset ? 'fa-id-card' : 'fa-envelope'} absolute left-4 top-1/2 -translate-y-1/2 text-gray-600`}></i>
                 <input
-                  type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@institution.com"
+                  type={isLogin && !isPasswordReset ? "text" : "email"} required value={email} onChange={(e) => setEmail(e.target.value)}
+                  placeholder={isLogin && !isPasswordReset ? "Enter email or username" : "Enter your email"}
                   className="w-full pl-11 pr-4 py-3.5 sm:py-4 rounded-2xl text-sm text-white font-medium placeholder:text-gray-700 outline-none transition-all duration-300 focus:ring-2 focus:ring-[#4285F4]/30"
                   style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Access Credentials</label>
-              <div className="relative">
-                <i className="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-600"></i>
-                <input
-                  type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-3.5 sm:py-4 rounded-2xl text-sm text-white font-medium placeholder:text-gray-700 outline-none transition-all duration-300 focus:ring-2 focus:ring-[#4285F4]/30"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-                />
-              </div>
-            </div>
-
-            {!isLogin && (
+            {!isLogin && !isPasswordReset && (
               <div className="space-y-1.5" style={{ animation: 'slideDown 0.3s ease-out' }}>
-                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Confirm Integrity</label>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Username</label>
+                <div className="relative">
+                  <i className="fa-solid fa-user-tag absolute left-4 top-1/2 -translate-y-1/2 text-gray-600"></i>
+                  <input
+                    type="text" required value={username} onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Choose a username"
+                    className="w-full pl-11 pr-4 py-3.5 sm:py-4 rounded-2xl text-sm text-white font-medium placeholder:text-gray-700 outline-none transition-all duration-300 focus:ring-2 focus:ring-[#4285F4]/30"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {!isPasswordReset && (
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Password</label>
+                <div className="relative">
+                  <i className="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-600"></i>
+                  <input
+                    type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-11 pr-4 py-3.5 sm:py-4 rounded-2xl text-sm text-white font-medium placeholder:text-gray-700 outline-none transition-all duration-300 focus:ring-2 focus:ring-[#4285F4]/30"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {!isLogin && !isPasswordReset && (
+              <div className="space-y-1.5" style={{ animation: 'slideDown 0.3s ease-out' }}>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Confirm Password</label>
                 <div className="relative">
                   <i className="fa-solid fa-shield-halved absolute left-4 top-1/2 -translate-y-1/2 text-gray-600"></i>
                   <input
@@ -113,6 +158,14 @@ const AuthView: React.FC = () => {
               </div>
             )}
 
+            {isLogin && !isPasswordReset && (
+              <div className="text-right">
+                <button type="button" onClick={() => setIsPasswordReset(true)} className="text-[10px] font-bold text-[#4285F4] uppercase tracking-widest hover:opacity-80 transition-opacity">
+                  Forget Password?
+                </button>
+              </div>
+            )}
+
             {error && (
               <div className="flex items-center gap-3 p-4 rounded-2xl text-sm" style={{ background: 'rgba(234,67,53,0.1)', border: '1px solid rgba(234,67,53,0.2)' }}>
                 <i className="fa-solid fa-triangle-exclamation text-red-400"></i>
@@ -120,36 +173,43 @@ const AuthView: React.FC = () => {
               </div>
             )}
 
+            {message && (
+              <div className="flex items-center gap-3 p-4 rounded-2xl text-sm" style={{ background: 'rgba(52,168,83,0.1)', border: '1px solid rgba(52,168,83,0.2)' }}>
+                <i className="fa-solid fa-circle-check text-emerald-400"></i>
+                <span className="text-emerald-300 text-xs font-bold">{message}</span>
+              </div>
+            )}
+
             <button
               type="submit" disabled={loading}
               className="w-full py-4 sm:py-4.5 rounded-2xl text-[11px] font-bold text-white uppercase tracking-[0.2em] shine-hover btn-primary-glow shadow-xl active:scale-[0.98]"
               style={{
-                background: isLogin
+                background: isPasswordReset ? 'linear-gradient(135deg, #FBBC04, #e6ac05)' : (isLogin
                   ? 'linear-gradient(135deg, #4285F4, #3b78e7)'
-                  : 'linear-gradient(135deg, #34A853, #2d9249)',
+                  : 'linear-gradient(135deg, #34A853, #2d9249)'),
               }}
             >
               {loading ? (
                 <i className="fa-solid fa-circle-notch animate-spin text-lg"></i>
               ) : (
-                <>{isLogin ? 'Authenticate' : 'Initialize Account'}<i className="fa-solid fa-chevron-right text-[10px] ml-2 opacity-60"></i></>
+                <>{isPasswordReset ? 'Send Link' : (isLogin ? 'Login' : 'Sign Up')}<i className="fa-solid fa-chevron-right text-[10px] ml-2 opacity-60"></i></>
               )}
             </button>
           </form>
 
           <div className="mt-8 pt-6 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
             <button
-              onClick={() => { setIsLogin(!isLogin); setError(''); }}
+              onClick={isPasswordReset ? () => setIsPasswordReset(false) : toggleMode}
               className="text-gray-500 hover:text-white text-xs font-medium transition-colors"
             >
-              {isLogin ? "Institutional new user? " : "Existing stakeholder? "}
-              <span className="text-[#4285F4] font-bold">{isLogin ? 'Onboard' : 'Sign in'}</span>
+              {isPasswordReset ? "Back to " : (isLogin ? "Don't have an account? " : "Already have an account? ")}
+              <span className="text-[#4285F4] font-bold">{isPasswordReset ? 'Login' : (isLogin ? 'Sign Up' : 'Login')}</span>
             </button>
           </div>
         </div>
 
         <div className="flex items-center justify-center gap-6 mt-10 text-gray-600 text-[10px] font-bold uppercase tracking-widest opacity-60">
-          <span className="flex items-center gap-2"><i className="fa-solid fa-shield-check text-[#4285F4]"></i> AES-256</span>
+          <span className="flex items-center gap-2"><i className="fa-solid fa-shield-check text-[#4285F4]"></i> Security</span>
           <span className="flex items-center gap-2"><i className="fa-solid fa-satellite-dish text-[#34A853]"></i> Sync</span>
           <span className="flex items-center gap-2"><i className="fa-solid fa-microchip text-[#FBBC04]"></i> Engine</span>
         </div>

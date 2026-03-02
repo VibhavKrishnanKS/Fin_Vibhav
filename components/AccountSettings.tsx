@@ -135,11 +135,11 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ accounts, onAdd, onUp
                 <button onClick={() => setEditingId(null)} className="py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest glass text-gray-400">Cancel</button>
               </div>
             ) : (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-center gap-6">
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:rotate-[15deg] group-hover:scale-110 shrink-0"
                     style={{ background: `${acc.color}10`, color: acc.color, border: `1px solid ${acc.color}20` }}>
-                    <i className={`fa-solid ${acc.type === 'credit' ? 'fa-credit-card-front' : acc.type === 'cash' ? 'fa-wallet' : 'fa-building-columns'} text-lg`}></i>
+                    <i className={`fa-solid ${acc.type === 'credit' ? 'fa-credit-card' : acc.type === 'cash' ? 'fa-wallet' : 'fa-building-columns'} text-lg`}></i>
                   </div>
                   <div>
                     <p className="text-base font-black text-white tracking-tight uppercase">{acc.name}</p>
@@ -149,7 +149,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ accounts, onAdd, onUp
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between sm:justify-end gap-10">
+                <div className="flex items-center justify-between md:justify-end gap-6 sm:gap-10">
                   <div className="text-right">
                     <p className="text-2xl font-black text-white tracking-tighter">
                        <span className="text-xs text-gray-600 mr-1">{CURRENCY_SYMBOL}</span>
@@ -157,12 +157,12 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ accounts, onAdd, onUp
                     </p>
                     {acc.type === 'credit' && <p className="text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-1">Limit: {CURRENCY_SYMBOL}{acc.creditLimit?.toLocaleString()}</p>}
                   </div>
-                  <div className="flex gap-2 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300">
+                  <div className="flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300">
                     <button onClick={() => startEditing(acc)} className="w-10 h-10 rounded-xl glass flex items-center justify-center text-gray-500 hover:text-white hover:bg-[#4285F4]/20 transition-all active:scale-90">
-                      <i className="fa-solid fa-pen-field text-[11px]"></i>
+                      <i className="fa-solid fa-pen-to-square text-[11px]"></i>
                     </button>
                     <button onClick={() => onDelete(acc.id)} className="w-10 h-10 rounded-xl glass flex items-center justify-center text-gray-500 hover:text-red-400 hover:bg-red-500/20 transition-all active:scale-90">
-                      <i className="fa-solid fa-trash-undo text-[11px]"></i>
+                      <i className="fa-solid fa-trash-can text-[11px]"></i>
                     </button>
                   </div>
                 </div>

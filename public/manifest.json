@@ -2,7 +2,7 @@
   "name": "VibhavWealth • Intelligent Finance",
   "short_name": "VibhavWealth",
   "description": "An elite financial tracking and intelligence platform.",
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0f1a",
   "theme_color": "#4285F4",

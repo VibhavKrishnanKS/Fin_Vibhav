@@ -36,7 +36,7 @@ const App: React.FC = () => {
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
-  const [toast, setToast] = useState<{ message: string, visible: boolean } | null>(null);
+  const [toast, setToast] = useState<{ message: string, visible: boolean, onUndo: () => void } | null>(null);
   const toastTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -74,9 +74,9 @@ const App: React.FC = () => {
     };
   }, [user]);
 
-  const triggerToast = (message: string) => {
+  const triggerToast = (message: string, onUndo: () => void = () => {}) => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-    setToast({ message, visible: true });
+    setToast({ message, visible: true, onUndo });
     toastTimeoutRef.current = window.setTimeout(() => {
       setToast(prev => prev ? { ...prev, visible: false } : null);
     }, 5000);
@@ -95,63 +95,101 @@ const App: React.FC = () => {
     });
   };
 
-  const handleSaveTransaction = async (data: Omit<Transaction, 'id'>, existingId?: string) => {
+  const handleSaveTransaction = async (data: Omit<Transaction, 'id'>, existingId?: string, silent: boolean = false) => {
     if (!user) return;
     try {
       if (existingId) {
         const oldTx = transactions.find(t => t.id === existingId);
         if (oldTx) {
+          const oldData = { ...oldTx };
+          delete (oldData as any).id;
+          
           let midAccs = calculateNewBalances([...accounts], oldTx, -1);
           const newTxStub = { ...data, id: existingId } as Transaction;
           const finalAccs = calculateNewBalances(midAccs, newTxStub, 1);
           await updateFirebaseTransaction(user.uid, existingId, data);
           await saveUserData(user.uid, finalAccs, categories);
+          
+          if (!silent) {
+            triggerToast("Changes Saved", () => {
+               setToast(p => p ? { ...p, visible: false } : null);
+               handleSaveTransaction(oldData as any, existingId, true);
+            });
+          }
         }
       } else {
         const tempTx = { ...data } as Transaction;
         const finalAccs = calculateNewBalances([...accounts], tempTx, 1);
-        await addFirebaseTransaction(user.uid, data);
+        const newId = await addFirebaseTransaction(user.uid, data);
         await saveUserData(user.uid, finalAccs, categories);
+        if (!silent) {
+          triggerToast("Entry Added", () => {
+             setToast(p => p ? { ...p, visible: false } : null);
+             handleDeleteTransaction(newId, true);
+          });
+        }
       }
-      triggerToast("Changes Saved");
     } catch (err) {
-      triggerToast("Save Error");
+      if (!silent) triggerToast("Save Error");
     }
     setEditingTransaction(null);
     setIsTxModalOpen(false);
   };
 
-  const handleDeleteTransaction = async (id: string) => {
+  const handleDeleteTransaction = async (id: string, silent: boolean = false) => {
     if (!user) return;
     try {
       const tx = transactions.find(t => t.id === id);
       if (!tx) return;
+      
+      const txData = { ...tx };
+      const originalId = txData.id;
+      delete (txData as any).id;
+      
       const finalAccs = calculateNewBalances([...accounts], tx, -1);
       await deleteFirebaseTransaction(user.uid, id);
       await saveUserData(user.uid, finalAccs, categories);
-      triggerToast("Entry Deleted");
+      
+      if (!silent) {
+        triggerToast("Entry Deleted", () => {
+           setToast(p => p ? { ...p, visible: false } : null);
+           handleSaveTransaction(txData as any, undefined, true);
+        });
+      }
     } catch (err) {
-      triggerToast("Delete Failed");
+      if (!silent) triggerToast("Delete Failed");
     }
   };
 
-  const handleUpdateAccounts = async (newAccounts: Account[]) => {
+  const handleUpdateAccounts = async (newAccounts: Account[], silent: boolean = false) => {
     if (!user) return;
+    const previousAccounts = [...accounts];
     try {
       await saveUserData(user.uid, newAccounts, categories);
-      triggerToast("Accounts Updated");
+      if (!silent) {
+        triggerToast("Accounts Updated", () => {
+           setToast(p => p ? { ...p, visible: false } : null);
+           handleUpdateAccounts(previousAccounts, true);
+        });
+      }
     } catch (err) {
-      triggerToast("Update Failed");
+      if (!silent) triggerToast("Update Failed");
     }
   };
 
-  const handleUpdateCategories = async (newCategories: Category[]) => {
+  const handleUpdateCategories = async (newCategories: Category[], silent: boolean = false) => {
     if (!user) return;
+    const previousCategories = [...categories];
     try {
       await saveUserData(user.uid, accounts, newCategories);
-      triggerToast("Categories Updated");
+      if (!silent) {
+        triggerToast("Categories Updated", () => {
+           setToast(p => p ? { ...p, visible: false } : null);
+           handleUpdateCategories(previousCategories, true);
+        });
+      }
     } catch (err) {
-      triggerToast("Update Failed");
+      if (!silent) triggerToast("Update Failed");
     }
   };
 
@@ -183,9 +221,9 @@ const App: React.FC = () => {
           <nav className="space-y-2 flex-1">
             <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.3em] px-3 mb-4">Menu</p>
             {[
-              { id: 'dashboard', icon: 'fa-chart-pie-simple', label: 'Overview' },
-              { id: 'transactions', icon: 'fa-microchip', label: 'Transactions' },
-              { id: 'settings', icon: 'fa-sliders-up', label: 'Settings' }
+              { id: 'dashboard', icon: 'fa-chart-pie', label: 'Overview' },
+              { id: 'transactions', icon: 'fa-list', label: 'Transactions' },
+              { id: 'settings', icon: 'fa-gear', label: 'Settings' }
             ].map(item => (
               <button
                 key={item.id} onClick={() => setActiveTab(item.id as any)}
@@ -230,10 +268,10 @@ const App: React.FC = () => {
            border: '1px solid rgba(255,255,255,0.1)'
         }}>
           {[
-            { id: 'dashboard', icon: 'fa-chart-column', label: 'Home' },
+            { id: 'dashboard', icon: 'fa-chart-simple', label: 'Home' },
             { id: 'transactions', icon: 'fa-list-ul', label: 'History' },
             { id: 'add', icon: 'fa-plus', label: 'Add', isAction: true },
-            { id: 'settings', icon: 'fa-gears', label: 'Settings' },
+            { id: 'settings', icon: 'fa-gear', label: 'Settings' },
           ].map(item => item.isAction ? (
             <button key="add" onClick={() => setIsTxModalOpen(true)}
               className="w-14 h-14 rounded-2xl flex items-center justify-center text-white -mt-8 active:scale-90 transition-all btn-primary-glow shine-hover shadow-2xl"
@@ -332,7 +370,7 @@ const App: React.FC = () => {
         />
       )}
       {isExportModalOpen && <ExportModal transactions={transactions} accounts={accounts} categories={categories} onClose={() => setIsExportModalOpen(false)} />}
-      {toast && <Toast message={toast.message} visible={toast.visible} onUndo={() => { }} />}
+      {toast && <Toast message={toast.message} visible={toast.visible} onUndo={toast.onUndo} />}
     </div>
   );
 };

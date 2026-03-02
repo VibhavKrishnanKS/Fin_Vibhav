@@ -51,7 +51,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, categor
               borderColor: isFilterOpen ? 'rgba(66,133,244,0.3)' : 'rgba(255,255,255,0.05)'
             }}
           >
-            <i className="fa-solid fa-filter-list text-xs"></i> Filter
+            <i className="fa-solid fa-filter text-xs"></i> Filter
           </button>
           <button onClick={onOpenExport}
             className="flex-1 sm:flex-none px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-3 justify-center text-white btn-primary-glow shine-hover shadow-xl"
@@ -134,7 +134,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, categor
                       </div>
                       <div className="flex items-center gap-1.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300">
                         <button onClick={() => onEdit(t)} className="w-9 h-9 flex items-center justify-center rounded-xl glass text-gray-500 hover:text-white hover:bg-[#4285F4]/20 transition-all active:scale-90">
-                          <i className="fa-solid fa-pen-paintbrush text-[10px]"></i>
+                          <i className="fa-solid fa-pen-to-square text-[10px]"></i>
                         </button>
                         <button onClick={() => onDelete(t.id)} className="w-9 h-9 flex items-center justify-center rounded-xl glass text-gray-500 hover:text-red-400 hover:bg-red-500/20 transition-all active:scale-90">
                           <i className="fa-solid fa-trash-can text-[10px]"></i>
@@ -151,7 +151,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, categor
         {filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-32 text-center glass rounded-[40px] border border-white/5">
             <div className="w-24 h-24 rounded-[32px] glass flex items-center justify-center mb-8 relative group shine-hover overflow-hidden">
-               <i className="fa-solid fa-cloud-binary text-4xl text-gray-700 group-hover:scale-110 transition-transform duration-700"></i>
+               <i className="fa-solid fa-cloud text-4xl text-gray-700 group-hover:scale-110 transition-transform duration-700"></i>
             </div>
             <p className="text-[11px] font-black uppercase tracking-[0.4em] text-gray-500">No Transactions</p>
             <p className="text-[9px] text-gray-700 font-bold uppercase tracking-widest mt-2">Start by adding a new transaction!</p>

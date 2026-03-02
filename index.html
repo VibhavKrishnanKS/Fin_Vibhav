@@ -3,29 +3,53 @@
   <head>
     <meta charset="UTF-8" />
     <meta
+      name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%234285F4%22/><path d=%22M50 25 L80 75 L20 75 Z%22 fill=%22white%22 opacity=%220.9%22/><path d=%22M50 45 L65 75 L35 75 Z%22 fill=%22%230a0f1a%22/></svg>">
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%234285F4%22/><path d=%22M50 25 L80 75 L20 75 Z%22 fill=%22white%22 opacity=%220.9%22/><path d=%22M50 45 L65 75 L35 75 Z%22 fill=%22%230a0f1a%22/></svg>"
+    />
     <meta name="theme-color" content="#0a0f1a" />
     <link rel="manifest" href="/manifest.json" />
     <title>VibhavWealth • Intelligent Finance</title>
 
-    <meta name="description" content="An elite financial tracking and intelligence platform featuring real-time wealth dynamics, institutional reporting, and AI-powered capital analysis." />
-    <meta name="keywords" content="finance, wealth management, ledger, AI insights, investment tracking" />
+    <meta
+      name="description"
+      content="An elite financial tracking and intelligence platform featuring real-time wealth dynamics, institutional reporting, and AI-powered capital analysis."
+    />
+    <meta
+      name="keywords"
+      content="finance, wealth management, ledger, AI insights, investment tracking"
+    />
     <meta name="author" content="VibhavWealth" />
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="VibhavWealth • Intelligent Finance" />
-    <meta property="og:description" content="An elite financial tracking and intelligence platform featuring real-time wealth dynamics and AI-powered capital analysis." />
-    <meta property="og:image" content="https://vibhav-wealth.vercel.app/og-image.png" />
+    <meta
+      property="og:description"
+      content="An elite financial tracking and intelligence platform featuring real-time wealth dynamics and AI-powered capital analysis."
+    />
+    <meta
+      property="og:image"
+      content="https://vibhav-wealth.vercel.app/og-image.png"
+    />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:title" content="VibhavWealth • Intelligent Finance" />
-    <meta property="twitter:description" content="An elite financial tracking and intelligence platform featuring real-time wealth dynamics and AI-powered capital analysis." />
+    <meta
+      property="twitter:title"
+      content="VibhavWealth • Intelligent Finance"
+    />
+    <meta
+      property="twitter:description"
+      content="An elite financial tracking and intelligence platform featuring real-time wealth dynamics and AI-powered capital analysis."
+    />
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
       tailwind.config = {
         darkMode: "class",
         theme: {
@@ -58,17 +82,17 @@
 
     <style>
       :root {
-        --primary: #4285F4;
-        --secondary: #34A853;
+        --primary: #4285f4;
+        --secondary: #34a853;
         --base: #0a0f1a;
         --glow: rgba(66, 133, 244, 0.4);
       }
-      
+
       * {
         box-sizing: border-box;
         -webkit-tap-highlight-color: transparent;
       }
-      
+
       body {
         background-color: var(--base);
         color: #e8eaed;
@@ -76,7 +100,7 @@
         overflow-x: hidden;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        font-family: 'Inter', sans-serif;
+        font-family: "Inter", sans-serif;
       }
 
       /* GLOBAL GLASSMORHPISM */
@@ -88,7 +112,8 @@
       }
 
       /* SUPER GLOWING BUTTONS */
-      button, .btn-glow {
+      button,
+      .btn-glow {
         position: relative;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
       }
@@ -104,7 +129,7 @@
       }
 
       .btn-primary-glow {
-        background: linear-gradient(135deg, #4285F4, #3b78e7) !important;
+        background: linear-gradient(135deg, #4285f4, #3b78e7) !important;
         box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3) !important;
       }
       .btn-primary-glow:hover {
@@ -116,13 +141,18 @@
         overflow: hidden;
       }
       .shine-hover::after {
-        content: '';
+        content: "";
         position: absolute;
         top: -50%;
         left: -150%;
         width: 100%;
         height: 200%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
         transform: rotate(25deg);
         transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       }
@@ -141,12 +171,12 @@
         z-index: 10000;
         transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
       }
-      
+
       .splash-logo-container {
         position: relative;
         margin-bottom: 32px;
       }
-      
+
       .splash-logo {
         width: 80px;
         height: 80px;
@@ -159,21 +189,32 @@
         position: relative;
         z-index: 2;
       }
-      
+
       .splash-logo-glow {
         position: absolute;
         inset: -20px;
-        background: radial-gradient(circle, rgba(66, 133, 244, 0.25) 0%, transparent 70%);
+        background: radial-gradient(
+          circle,
+          rgba(66, 133, 244, 0.25) 0%,
+          transparent 70%
+        );
         animation: breath 2s infinite ease-in-out;
       }
-      
+
       @keyframes breath {
-        0%, 100% { transform: scale(1); opacity: 0.4; }
-        50% { transform: scale(1.3); opacity: 0.7; }
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 0.4;
+        }
+        50% {
+          transform: scale(1.3);
+          opacity: 0.7;
+        }
       }
-      
+
       .splash-text {
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: "Plus Jakarta Sans", sans-serif;
         font-size: 16px;
         font-weight: 800;
         color: white;
@@ -182,18 +223,19 @@
         margin-bottom: 12px;
         background: linear-gradient(to right, #fff, #9aa0a6);
         -webkit-background-clip: text;
+        background-clip: text;
         -webkit-text-fill-color: transparent;
         animation: fadeInUp 0.8s ease-out;
       }
-      
+
       .loading-bar-container {
         width: 180px;
         height: 2px;
-        background: rgba(255,255,255,0.05);
+        background: rgba(255, 255, 255, 0.05);
         border-radius: 10px;
         overflow: hidden;
       }
-      
+
       .loading-bar-fill {
         width: 0%;
         height: 100%;
@@ -201,50 +243,56 @@
         border-radius: 10px;
         animation: load 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
       }
-      
+
       @keyframes load {
-        0% { width: 0%; }
-        60% { width: 85%; }
-        100% { width: 100%; }
+        0% {
+          width: 0%;
+        }
+        60% {
+          width: 85%;
+        }
+        100% {
+          width: 100%;
+        }
       }
 
       @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       /* Custom scrollbar */
-      ::-webkit-scrollbar { width: 6px; height: 6px; }
-      ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
-      ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
 
       /* Input autofill styling */
       input:-webkit-autofill,
-      input:-webkit-autofill:hover, 
+      input:-webkit-autofill:hover,
       input:-webkit-autofill:focus {
         -webkit-text-fill-color: white;
         -webkit-box-shadow: 0 0 0px 1000px #1e1e1e inset;
         transition: background-color 5000s ease-in-out 0s;
       }
     </style>
-    
-    <script type="importmap">
-      {
-        "imports": {
-          "react": "https://esm.sh/react@^19.2.3",
-          "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-          "react/": "https://esm.sh/react@^19.2.3/",
-          "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
-          "recharts": "https://esm.sh/recharts@^3.6.0",
-          "jspdf": "https://esm.sh/jspdf@^3.0.4",
-          "jspdf-autotable": "https://esm.sh/jspdf-autotable@^5.0.2",
-          "xlsx": "https://esm.sh/xlsx@^0.18.5",
-          "vite": "https://esm.sh/vite@^7.3.0",
-          "firebase/": "https://esm.sh/firebase@^12.7.0/"
-        }
-      }
-    </script>
+
   </head>
   <body>
     <div id="splash-screen">
@@ -266,11 +314,11 @@
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
     <script>
-      window.addEventListener('load', () => {
+      window.addEventListener("load", () => {
         setTimeout(() => {
-          const splash = document.getElementById('splash-screen');
+          const splash = document.getElementById("splash-screen");
           if (splash) {
-            splash.style.opacity = '0';
+            splash.style.opacity = "0";
             setTimeout(() => splash.remove(), 800);
           }
         }, 2500);

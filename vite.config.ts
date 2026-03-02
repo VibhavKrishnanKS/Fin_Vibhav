@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  // Essential for GitHub Pages subfolder hosting
-  base: '/Fin_Vibhav/',
+  // Essential for root domain hosting (like Vercel)
+  base: '/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

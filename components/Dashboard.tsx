@@ -78,8 +78,8 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
       {/* Metrics Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {[
-          { label: 'Total Income', value: totalIncome, color: '#34A853', icon: 'fa-arrow-up-right-dots' },
-          { label: 'Total Expense', value: totalExpense, color: '#EA4335', icon: 'fa-arrow-down-left-and-arrow-up-right-to-center' },
+          { label: 'Total Income', value: totalIncome, color: '#34A853', icon: 'fa-arrow-trend-up' },
+          { label: 'Total Expense', value: totalExpense, color: '#EA4335', icon: 'fa-arrow-trend-down' },
           { label: 'Net Balance', value: totalIncome - totalExpense, color: '#4285F4', icon: 'fa-vault' },
           { label: 'Transactions', value: transactions.length, color: '#FBBC04', icon: 'fa-database', isCnt: true },
         ].map((s, i) => (
@@ -159,7 +159,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
                 <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">{chart.subtitle}</p>
               </div>
               <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: `${chart.accent}10`, color: chart.accent }}>
-                <i className={`fa-solid ${ci === 0 ? 'fa-chart-pie' : 'fa-chart-line-down'} text-lg`}></i>
+                <i className={`fa-solid ${ci === 0 ? 'fa-chart-pie' : 'fa-chart-line'} text-lg`}></i>
               </div>
             </div>
             <div className="w-full h-[280px]">
@@ -187,7 +187,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
                 </ResponsiveContainer>
               ) : (
                 <div className="flex items-center justify-center h-full flex-col gap-3 opacity-30">
-                  <i className="fa-solid fa-inbox text-4xl"></i>
+                  <i className="fa-solid fa-cloud text-4xl"></i>
                   <p className="text-[10px] font-bold uppercase tracking-widest">Insufficient Data</p>
                 </div>
               )}
