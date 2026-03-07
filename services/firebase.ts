@@ -1,4 +1,3 @@
-
 // Firebase modular SDK imports
 // Fix: Import initializeApp as a named export from the firebase/app module
 import { initializeApp } from "firebase/app";
@@ -102,7 +101,19 @@ export const registerUser = async (email: string, pass: string, username: string
   return userCredential;
 };
 
-export const resetPassword = (email: string) => sendPasswordResetEmail(auth, email);
+export const resetPassword = async (identifier: string) => {
+  let email = identifier;
+  // If identifier is a username, lookup the email first
+  if (!identifier.includes('@')) {
+    const usernameDoc = await getDoc(doc(db, "usernames", identifier.toLowerCase()));
+    if (usernameDoc.exists()) {
+      email = usernameDoc.data().email;
+    } else {
+      throw new Error("Username not found.");
+    }
+  }
+  return sendPasswordResetEmail(auth, email);
+};
 export const logoutUser = () => signOut(auth);
 
 export { onAuthStateChanged };

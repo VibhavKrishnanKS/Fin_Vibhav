@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Transaction, Account, Category } from './types';
-import { INITIAL_ACCOUNTS, INITIAL_CATEGORIES } from './constants';
+import { INITIAL_ACCOUNTS, INITIAL_CATEGORIES, formatCurrency } from './constants';
 import {
   auth,
   subscribeToData,
@@ -82,82 +82,94 @@ const App: React.FC = () => {
     }, 5000);
   };
 
-  const calculateNewBalances = (currentAccs: Account[], tx: Transaction, factor: number): Account[] => {
-    return currentAccs.map(a => {
-      if (a.id === tx.fromAccountId) {
-        const change = tx.type === 'income' ? tx.amount : -tx.amount;
-        return { ...a, balance: a.balance + (change * factor) };
-      }
-      if (tx.type === 'transfer' && a.id === tx.toAccountId) {
-        return { ...a, balance: a.balance + (tx.amount * factor) };
-      }
-      return a;
+  const reconcileLedger = (currentTransactions: Transaction[], baseAccounts: Account[], cats: Category[]): Account[] => {
+    // 1. Sort transactions by date (Oldest first)
+    const sortedTxs = [...currentTransactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
+    // 2. Map of "Tally" categories
+    const tallyCatIds = cats.filter(c => c.name.toLowerCase().includes('tally')).map(c => c.id);
+
+    // 3. Reset accounts to their Initial Balance (Fallback to 0 if missing in DB)
+    const reconciled = baseAccounts.map(acc => ({ ...acc, balance: Number(acc.initialBalance) || 0 }));
+
+    // 4. Re-calculate everything chronologicaly
+    sortedTxs.forEach(tx => {
+      reconciled.forEach(acc => {
+         let change = 0;
+         if (acc.id === tx.fromAccountId) {
+            if (tx.type === 'income') {
+              change = tx.amount;
+            } else if (tx.type === 'cc_action') {
+              // Tally Settlement (Bank Pays) or Debit (Card Spends)
+              change = -tx.amount;
+            } else {
+              // Normal Expense: Check for Tally in name as a backup
+              if (tallyCatIds.includes(tx.categoryId) && acc.type === 'credit') {
+                change = tx.amount;
+              } else {
+                change = -tx.amount;
+              }
+            }
+         } else if ((tx.type === 'transfer' || (tx.type === 'cc_action' && tx.ccOperation === 'tally')) && acc.id === tx.toAccountId) {
+            change = tx.amount;
+         }
+         acc.balance += change;
+      });
     });
+
+    return reconciled;
   };
 
   const handleSaveTransaction = async (data: Omit<Transaction, 'id'>, existingId?: string, silent: boolean = false) => {
     if (!user) return;
     try {
+      let updatedTxs = [...transactions];
       if (existingId) {
-        const oldTx = transactions.find(t => t.id === existingId);
-        if (oldTx) {
-          const oldData = { ...oldTx };
-          delete (oldData as any).id;
-          
-          let midAccs = calculateNewBalances([...accounts], oldTx, -1);
-          const newTxStub = { ...data, id: existingId } as Transaction;
-          const finalAccs = calculateNewBalances(midAccs, newTxStub, 1);
-          await updateFirebaseTransaction(user.uid, existingId, data);
-          await saveUserData(user.uid, finalAccs, categories);
-          
-          if (!silent) {
-            triggerToast("Changes Saved", () => {
-               setToast(p => p ? { ...p, visible: false } : null);
-               handleSaveTransaction(oldData as any, existingId, true);
-            });
-          }
-        }
+        const idx = updatedTxs.findIndex(t => t.id === existingId);
+        if (idx !== -1) updatedTxs[idx] = { ...data, id: existingId } as Transaction;
+        await updateFirebaseTransaction(user.uid, existingId, data);
       } else {
-        const tempTx = { ...data } as Transaction;
-        const finalAccs = calculateNewBalances([...accounts], tempTx, 1);
         const newId = await addFirebaseTransaction(user.uid, data);
-        await saveUserData(user.uid, finalAccs, categories);
-        if (!silent) {
-          triggerToast("Entry Added", () => {
-             setToast(p => p ? { ...p, visible: false } : null);
-             handleDeleteTransaction(newId, true);
-          });
-        }
+        updatedTxs.push({ ...data, id: newId } as Transaction);
       }
+      
+      const finalAccs = reconcileLedger(updatedTxs, accounts, categories);
+      
+      // SAFETY CHECK: Never write NaN to the database
+      const hasNaN = finalAccs.some(a => isNaN(a.balance));
+      if (!hasNaN) {
+        await saveUserData(user.uid, finalAccs, categories);
+      }
+      
+      setAccounts(finalAccs); // Always update local UI
+      
+      if (!silent) triggerToast(existingId ? "Changes Saved" : "Transaction Logged");
     } catch (err) {
-      if (!silent) triggerToast("Save Error");
+      if (!silent) triggerToast("Persistence Error");
     }
     setEditingTransaction(null);
     setIsTxModalOpen(false);
   };
 
-  const handleDeleteTransaction = async (id: string, silent: boolean = false) => {
+  const handleDeleteTransaction = async (id: string) => {
     if (!user) return;
     try {
-      const tx = transactions.find(t => t.id === id);
-      if (!tx) return;
+      const updatedTxs = transactions.filter(t => t.id !== id);
+      const finalAccs = reconcileLedger(updatedTxs, accounts, categories);
       
-      const txData = { ...tx };
-      const originalId = txData.id;
-      delete (txData as any).id;
-      
-      const finalAccs = calculateNewBalances([...accounts], tx, -1);
       await deleteFirebaseTransaction(user.uid, id);
       await saveUserData(user.uid, finalAccs, categories);
       
-      if (!silent) {
-        triggerToast("Entry Deleted", () => {
-           setToast(p => p ? { ...p, visible: false } : null);
-           handleSaveTransaction(txData as any, undefined, true);
-        });
-      }
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+      setToast({ message: "Transaction Terminated", visible: true, onUndo: () => {
+         const tx = transactions.find(t => t.id === id);
+         if (tx) {
+           const { id: _, ...raw } = tx;
+           handleSaveTransaction(raw as any, undefined, true);
+         }
+      }});
     } catch (err) {
-      if (!silent) triggerToast("Delete Failed");
+      triggerToast("Deletion Failed");
     }
   };
 
@@ -190,6 +202,20 @@ const App: React.FC = () => {
       }
     } catch (err) {
       if (!silent) triggerToast("Update Failed");
+    }
+  };
+
+  const handleRebalanceHistory = async () => {
+    if (!user) return;
+    try {
+      // THE TRUE SYNC: Re-run every transaction from history locally
+      // This NO LONGER writes to the DB. It only aligns your current view.
+      const finalAccs = reconcileLedger(transactions, accounts, categories);
+      
+      setAccounts(finalAccs);
+      triggerToast("Local Ledger Aligned (Not saved to DB)");
+    } catch (err) {
+      triggerToast("Sync Failed");
     }
   };
 
@@ -344,6 +370,7 @@ const App: React.FC = () => {
                   onAdd={(a) => handleUpdateAccounts([...accounts, { ...a, id: `acc-${Date.now()}` }])}
                   onUpdate={(id, u) => handleUpdateAccounts(accounts.map(a => a.id === id ? { ...a, ...u } : a))}
                   onDelete={(id) => handleUpdateAccounts(accounts.filter(a => a.id !== id))}
+                  onRebalance={handleRebalanceHistory}
                 />
                 <CategorySettings
                   categories={categories}

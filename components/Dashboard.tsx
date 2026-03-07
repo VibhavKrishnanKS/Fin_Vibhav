@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { Transaction, Category, Account } from '../types';
-import { CURRENCY_SYMBOL } from '../constants';
+import { CURRENCY_SYMBOL, formatCurrency } from '../constants';
 
 interface DashboardProps {
   transactions: Transaction[];
@@ -13,6 +13,14 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, accounts }) => {
   const totalIncome = useMemo(() => transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0), [transactions]);
   const totalExpense = useMemo(() => transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0), [transactions]);
+
+  const globalBalance = useMemo(() => {
+    return accounts.reduce((s, a) => {
+      if (a.type !== 'credit') return s + a.balance;
+      const spent = (a.creditLimit || 0) - a.balance;
+      return s - spent;
+    }, 0);
+  }, [accounts]);
 
   const chartData = useMemo(() => {
     const last15 = Array.from({ length: 15 }, (_, i) => {
@@ -66,7 +74,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
               <span className="w-2.5 h-2.5 rounded-full" style={{ background: p.color, boxShadow: `0 0 10px ${p.color}` }}></span>
               <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{p.dataKey}</span>
             </div>
-            <span className="text-sm font-bold text-white">{CURRENCY_SYMBOL}{p.value.toLocaleString()}</span>
+            <span className="text-sm font-bold text-white">{CURRENCY_SYMBOL}{formatCurrency(p.value)}</span>
           </div>
         ))}
       </div>
@@ -80,7 +88,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
         {[
           { label: 'Total Income', value: totalIncome, color: '#34A853', icon: 'fa-arrow-trend-up' },
           { label: 'Total Expense', value: totalExpense, color: '#EA4335', icon: 'fa-arrow-trend-down' },
-          { label: 'Net Balance', value: totalIncome - totalExpense, color: '#4285F4', icon: 'fa-vault' },
+          { label: 'Net Balance', value: globalBalance, color: '#4285F4', icon: 'fa-vault' },
           { label: 'Transactions', value: transactions.length, color: '#FBBC04', icon: 'fa-database', isCnt: true },
         ].map((s, i) => (
           <div key={i} className="glass p-5 rounded-[28px] relative group overflow-hidden shine-hover" style={{
@@ -94,7 +102,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
             </div>
             <p className="text-[10px] sm:text-xs text-gray-500 font-bold uppercase tracking-widest mb-1">{s.label}</p>
             <p className="text-xl sm:text-2xl font-black text-white tracking-tight">
-              {s.isCnt ? s.value : `${CURRENCY_SYMBOL}${s.value.toLocaleString()}`}
+              {s.isCnt ? s.value : `${CURRENCY_SYMBOL}${formatCurrency(s.value)}`}
             </p>
           </div>
         ))}
@@ -135,7 +143,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
               </defs>
               <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="rgba(255,255,255,0.03)" />
               <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#4b5563' }} dy={10} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#4b5563' }} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#4b5563' }} tickFormatter={(val) => formatCurrency(val)} />
               <Tooltip content={renderCustomTooltip} cursor={{ stroke: 'rgba(255,255,255,0.08)', strokeWidth: 2 }} />
               <Area type="monotone" dataKey="income" stroke="#4285F4" fill="url(#primaryGrad)" strokeWidth={4} dot={{ r: 4, fill: '#4285F4', strokeWidth: 2, stroke: '#0a0f1a' }} activeDot={{ r: 8, strokeWidth: 0, fill: '#4285F4' }} />
               <Area type="monotone" dataKey="expense" stroke="#EA4335" fill="url(#criticalGrad)" strokeWidth={2} strokeDasharray="6 6" dot={false} />
@@ -176,7 +184,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
                           return (
                             <div className="px-4 py-2 glass rounded-2xl shadow-2xl">
                               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">{payload[0].name}</p>
-                              <p className="text-sm font-black text-white">{CURRENCY_SYMBOL}{payload[0].value.toLocaleString()}</p>
+                              <p className="text-sm font-black text-white">{CURRENCY_SYMBOL}{formatCurrency(payload[0].value)}</p>
                             </div>
                           );
                         }
@@ -215,7 +223,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
                     <span className="text-[9px] font-black uppercase tracking-widest opacity-50">{stat.type}</span>
                   </div>
                   <p className="text-[11px] font-bold text-gray-300 truncate mb-1">{stat.name}</p>
-                  <p className="text-base font-black text-white">{CURRENCY_SYMBOL}{stat.amount.toLocaleString()}</p>
+                  <p className="text-base font-black text-white">{CURRENCY_SYMBOL}{formatCurrency(stat.amount)}</p>
                   <div className="mt-4 w-full h-[3px] rounded-full bg-white/5 relative overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-1000 group-hover:brightness-125" style={{ width: `${(stat.amount / maxAmount) * 100}%`, background: stat.color, boxShadow: `0 0 10px ${stat.color}40` }} />
                   </div>

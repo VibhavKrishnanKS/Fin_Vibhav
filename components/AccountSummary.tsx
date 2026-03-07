@@ -1,14 +1,14 @@
 
 import React from 'react';
 import { Account } from '../types';
-import { CURRENCY_SYMBOL } from '../constants';
+import { CURRENCY_SYMBOL, formatCurrency } from '../constants';
 
 interface AccountSummaryProps {
   accounts: Account[];
 }
 
 const AccountSummary: React.FC<AccountSummaryProps> = ({ accounts }) => {
-  const total = accounts.reduce((s, a) => s + (a.type !== 'credit' ? a.balance : 0), 0);
+  const total = accounts.reduce((s, a) => s + (a.type !== 'credit' ? a.balance : (a.balance - (a.creditLimit || 0))), 0);
 
   return (
     <div className="space-y-6" style={{ animation: 'fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }}>
@@ -28,7 +28,7 @@ const AccountSummary: React.FC<AccountSummaryProps> = ({ accounts }) => {
             </div>
             <p className="text-3xl sm:text-5xl font-black text-white tracking-tight flex items-baseline gap-2">
               <span className="text-xl sm:text-2xl text-gray-500 font-medium">{CURRENCY_SYMBOL}</span>
-              {total.toLocaleString()}
+              {formatCurrency(total)}
             </p>
           </div>
           <div className="flex items-center gap-3 px-5 py-3 rounded-2xl glass active:scale-95 transition-transform cursor-pointer" style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
@@ -45,7 +45,8 @@ const AccountSummary: React.FC<AccountSummaryProps> = ({ accounts }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
         {accounts.map((acc, index) => {
           const isCredit = acc.type === 'credit';
-          const utilization = isCredit ? (acc.balance / (acc.creditLimit || 1)) * 100 : 0;
+          const spent = isCredit ? (acc.creditLimit || 0) - acc.balance : 0;
+          const utilization = isCredit ? (spent / (acc.creditLimit || 1)) * 100 : 0;
           const icon = isCredit ? 'fa-credit-card' : acc.type === 'cash' ? 'fa-wallet' : 'fa-building-columns';
 
           return (
@@ -74,7 +75,7 @@ const AccountSummary: React.FC<AccountSummaryProps> = ({ accounts }) => {
               <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1.5">{acc.name}</p>
               <p className="text-2xl font-black text-white tracking-tight">
                 <span className="text-xs text-gray-600 font-medium mr-1">{CURRENCY_SYMBOL}</span>
-                {acc.balance.toLocaleString()}
+                {formatCurrency(acc.balance)}
               </p>
 
               {isCredit ? (
@@ -85,7 +86,7 @@ const AccountSummary: React.FC<AccountSummaryProps> = ({ accounts }) => {
                   </div>
                   <div className="flex justify-between text-[9px] font-bold uppercase tracking-widest text-gray-500">
                     <span>{utilization.toFixed(1)}% Intensity</span>
-                    <span>{CURRENCY_SYMBOL}{(acc.creditLimit || 0).toLocaleString()} Cap</span>
+                    <span>{CURRENCY_SYMBOL}{formatCurrency(acc.creditLimit || 0)} Cap</span>
                   </div>
                 </div>
               ) : (

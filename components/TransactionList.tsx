@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Transaction, Category, Account } from '../types';
-import { CURRENCY_SYMBOL } from '../constants';
+import { CURRENCY_SYMBOL, formatCurrency } from '../constants';
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -82,7 +82,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, categor
             <div className="flex items-center gap-4 px-2">
               <div className="w-1.5 h-6 rounded-full bg-white/5"></div>
               <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">
-                {new Date(date).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
+                {new Date(date).toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
               </h5>
               <div className="flex-1 h-[1px] bg-white/5"></div>
               <span className="text-[9px] text-gray-600 font-bold uppercase tracking-widest">{txs.length} Transactions</span>
@@ -129,7 +129,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, categor
                         <p className="text-lg font-black tracking-tight" style={{ color: t.type === 'income' ? '#34A853' : t.type === 'transfer' ? '#8ab4f8' : 'white' }}>
                           {t.type === 'expense' ? '-' : t.type === 'income' ? '+' : ''}
                           <span className="text-xs text-gray-500 mr-0.5 font-medium">{CURRENCY_SYMBOL}</span>
-                          {t.amount.toLocaleString()}
+                          {formatCurrency(t.amount)}
                         </p>
                       </div>
                       <div className="flex items-center gap-1.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300">

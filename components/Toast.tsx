@@ -23,7 +23,7 @@ const Toast: React.FC<ToastProps> = ({ message, visible, onUndo }) => {
   return (
     <div 
       onAnimationEnd={handleAnimationEnd}
-      className={`fixed bottom-28 sm:bottom-12 left-1/2 -translate-x-1/2 z-[110] w-[calc(100%-3rem)] max-w-sm`}
+      className={`fixed top-12 left-1/2 -translate-x-1/2 z-[110] w-[calc(100%-3rem)] max-w-sm`}
       style={{ 
         animation: visible ? 'toastIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both' : 'toastOut 0.6s cubic-bezier(0.16, 1, 0.3, 1) both',
       }}
@@ -57,12 +57,12 @@ const Toast: React.FC<ToastProps> = ({ message, visible, onUndo }) => {
 
       <style>{`
         @keyframes toastIn { 
-          from { transform: translate(-50%, 60px) scale(0.85); opacity: 0; filter: blur(10px); } 
+          from { transform: translate(-50%, -60px) scale(0.85); opacity: 0; filter: blur(10px); } 
           to { transform: translate(-50%, 0) scale(1); opacity: 1; filter: blur(0); } 
         }
         @keyframes toastOut { 
           from { transform: translate(-50%, 0) scale(1); opacity: 1; filter: blur(0); } 
-          to { transform: translate(-50%, 60px) scale(0.85); opacity: 0; filter: blur(10px); } 
+          to { transform: translate(-50%, -60px) scale(0.85); opacity: 0; filter: blur(10px); } 
         }
         @keyframes progress { from { width: 100%; } to { width: 0%; } }
       `}</style>

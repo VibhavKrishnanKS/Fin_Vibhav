@@ -118,7 +118,7 @@ const generatePDF = async (transactions: Transaction[], accounts: Account[], cat
     doc.text(label, x + 4, cardY + 7);
     doc.setFontSize(11);
     doc.setTextColor(color[0], color[1], color[2]);
-    doc.text(`${PDF_CURRENCY}${val.toLocaleString()}`, x + 4, cardY + 16);
+    doc.text(`${PDF_CURRENCY}${val.toLocaleString('en-IN')}`, x + 4, cardY + 16);
   };
 
   drawMetric(margin, "TOTAL REVENUE", income, [15, 157, 88]); // Google Green
@@ -187,19 +187,19 @@ const generatePDF = async (transactions: Transaction[], accounts: Account[], cat
         doc.setFontSize(7);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(95, 99, 104);
-        doc.text(`Income: ${PDF_CURRENCY}${income.toLocaleString()} (${Math.round((income/total)*100)}%)`, legendX + 6, chartY + 16.5);
+        doc.text(`Income: ${PDF_CURRENCY}${income.toLocaleString('en-IN')} (${Math.round((income/total)*100)}%)`, legendX + 6, chartY + 16.5);
         
         // Expense legend
         doc.setFillColor(234, 67, 53);
         doc.rect(legendX, chartY + 21, 4, 4, 'F');
-        doc.text(`Expense: ${PDF_CURRENCY}${expense.toLocaleString()} (${Math.round((expense/total)*100)}%)`, legendX + 6, chartY + 24.5);
+        doc.text(`Expense: ${PDF_CURRENCY}${expense.toLocaleString('en-IN')} (${Math.round((expense/total)*100)}%)`, legendX + 6, chartY + 24.5);
         
         // Net savings
         doc.setFillColor(66, 133, 244);
         doc.rect(legendX, chartY + 29, 4, 4, 'F');
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(66, 133, 244);
-        doc.text(`Net Savings: ${PDF_CURRENCY}${net.toLocaleString()}`, legendX + 6, chartY + 32.5);
+        doc.text(`Net Savings: ${PDF_CURRENCY}${net.toLocaleString('en-IN')}`, legendX + 6, chartY + 32.5);
       }
     }
   } catch(e) { console.error('Failed to create chart', e); }
@@ -210,7 +210,7 @@ const generatePDF = async (transactions: Transaction[], accounts: Account[], cat
     t.description,
     categories.find(c => c.id === t.categoryId)?.name || '-',
     accounts.find(a => a.id === t.fromAccountId)?.name || '-',
-    `${t.type === 'income' ? '+' : '-'}${t.amount.toLocaleString()}`
+    `${t.type === 'income' ? '+' : '-'}${t.amount.toLocaleString('en-IN')}`
   ]);
 
   autoTable(doc, {

@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Transaction, TransactionType, Account, Category } from '../types';
+import { CURRENCY_SYMBOL } from '../constants';
 
 interface AddTransactionModalProps {
   accounts: Account[];
@@ -18,6 +19,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
   const [toAccountId, setToAccountId] = useState(initialData?.toAccountId || (accounts.length > 1 ? accounts[1].id : ''));
   const [date, setDate] = useState(initialData?.date || new Date().toISOString().split('T')[0]);
   const [selectedCategoryId, setSelectedCategoryId] = useState(initialData?.categoryId || '');
+  const [ccOperation, setCcOperation] = useState<'debit' | 'tally'>(initialData?.ccOperation || 'debit');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +33,8 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
       date,
       type,
       fromAccountId,
-      toAccountId: type === 'transfer' ? toAccountId : undefined
+      toAccountId: type === 'transfer' || (type === 'cc_action' && ccOperation === 'tally') ? toAccountId : undefined,
+      ccOperation: type === 'cc_action' ? ccOperation : undefined
     }, initialData?.id);
     onClose();
   };
@@ -75,23 +78,59 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
           <form onSubmit={handleSubmit} className="space-y-10">
             
             {/* Classification Matrix */}
-            <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/5">
-              {(['expense', 'income', 'transfer'] as const).map(t => (
+            <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/5 overflow-x-auto mini-scrollbar">
+              {(['expense', 'income', 'transfer', 'cc_action'] as const).map(t => (
                 <button 
-                  key={t} type="button" onClick={() => setType(t)}
-                  className={`flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all ${type === t ? 'bg-[#4285F4] text-white shadow-xl' : 'text-gray-500 hover:text-gray-300'}`}
+                  key={t} type="button" onClick={() => {
+                    setType(t);
+                    if (t === 'cc_action') {
+                      const firstCC = accounts.find(a => a.type === 'credit');
+                      if (firstCC) setFromAccountId(firstCC.id);
+                      // Auto-select a tally category if one exists
+                      const tallyCat = categories.find(c => c.name.toLowerCase().includes('tally'));
+                      if (tallyCat) setSelectedCategoryId(tallyCat.id);
+                    }
+                  }}
+                  className={`flex-1 py-3 px-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all whitespace-nowrap ${type === t ? 'bg-[#4285F4] text-white shadow-xl' : 'text-gray-500 hover:text-gray-300'}`}
                 >
-                  {t}
+                  {t === 'cc_action' ? 'Credit Card' : t}
                 </button>
               ))}
             </div>
+
+            {type === 'cc_action' && (
+              <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/5" style={{ animation: 'slideDown 0.3s ease-out' }}>
+                <button 
+                  type="button" onClick={() => {
+                    setCcOperation('debit');
+                    const firstCC = accounts.find(a => a.type === 'credit');
+                    if (firstCC) setFromAccountId(firstCC.id);
+                  }}
+                  className={`flex-1 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all ${ccOperation === 'debit' ? 'bg-[#EA4335] text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}
+                >
+                  <i className="fa-solid fa-arrow-up-right-from-square mr-2 opacity-60"></i> Debit
+                </button>
+                <button 
+                  type="button" onClick={() => {
+                    setCcOperation('tally');
+                    const firstBank = accounts.find(a => a.type !== 'credit');
+                    const firstCC = accounts.find(a => a.type === 'credit');
+                    if (firstBank) setFromAccountId(firstBank.id);
+                    if (firstCC) setToAccountId(firstCC.id);
+                  }}
+                  className={`flex-1 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all ${ccOperation === 'tally' ? 'bg-[#34A853] text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}
+                >
+                  <i className="fa-solid fa-rotate-left mr-2 opacity-60"></i> Settlement
+                </button>
+              </div>
+            )}
 
             {/* Core Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               <div className="space-y-2">
                 <label className={labelClass}>Amount</label>
                 <div className="relative group">
-                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 font-black text-xl group-focus-within:text-[#4285F4] transition-colors">₹</span>
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 font-black text-xl group-focus-within:text-[#4285F4] transition-colors">{CURRENCY_SYMBOL}</span>
                   <input 
                     type="number" required value={inputAmount} 
                     onChange={e => setInputAmount(e.target.value)} 
@@ -128,19 +167,38 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
             {/* System Parameters */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               <div className="space-y-2">
-                <label className={labelClass}>{type === 'transfer' ? 'From Account' : 'Account'}</label>
+                <label className={labelClass}>
+                  {type === 'cc_action' && ccOperation === 'tally' ? 'Settle From (Bank)' : (type === 'transfer' ? 'From Account' : 'Account')}
+                </label>
                 <div className="relative">
                   <select 
                     value={fromAccountId} onChange={e => setFromAccountId(e.target.value)} 
                     className={inputClass}
                   >
-                    {accounts.map(acc => <option key={acc.id} value={acc.id} className="bg-[#121214]">{acc.name}</option>)}
+                    {(type === 'cc_action' ? (ccOperation === 'tally' ? accounts.filter(a => a.type !== 'credit') : accounts.filter(a => a.type === 'credit')) : accounts).map(acc => (
+                      <option key={acc.id} value={acc.id} className="bg-[#121214]">{acc.name}</option>
+                    ))}
                   </select>
                   <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none"></i>
                 </div>
               </div>
 
-              {type !== 'transfer' ? (
+              {type === 'transfer' || (type === 'cc_action' && ccOperation === 'tally') ? (
+                <div className="space-y-2">
+                  <label className={labelClass}>{type === 'cc_action' ? 'Settle To (Card)' : 'To Account'}</label>
+                  <div className="relative">
+                    <select 
+                      value={toAccountId} onChange={e => setToAccountId(e.target.value)} 
+                      className={inputClass}
+                    >
+                      {(type === 'cc_action' ? accounts.filter(a => a.type === 'credit') : accounts).map(acc => (
+                        <option key={acc.id} value={acc.id} disabled={acc.id === fromAccountId} className="bg-[#121214]">{acc.name}</option>
+                      ))}
+                    </select>
+                    <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none"></i>
+                  </div>
+                </div>
+              ) : (
                 <div className="space-y-2">
                   <label className={labelClass}>Category</label>
                   <div className="relative">
@@ -151,21 +209,6 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
                       <option value="" className="bg-[#121214]">Select Category</option>
                       {categories.filter(c => c.type === (type === 'income' ? 'income' : 'expense')).map(cat => (
                         <option key={cat.id} value={cat.id} className="bg-[#121214]">{cat.name}</option>
-                      ))}
-                    </select>
-                    <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none"></i>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <label className={labelClass}>To Account</label>
-                  <div className="relative">
-                    <select 
-                      value={toAccountId} onChange={e => setToAccountId(e.target.value)} 
-                      className={inputClass}
-                    >
-                      {accounts.map(acc => (
-                        <option key={acc.id} value={acc.id} disabled={acc.id === fromAccountId} className="bg-[#121214]">{acc.name}</option>
                       ))}
                     </select>
                     <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none"></i>

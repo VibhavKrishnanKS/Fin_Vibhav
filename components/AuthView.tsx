@@ -13,6 +13,8 @@ const AuthView: React.FC = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -22,12 +24,16 @@ const AuthView: React.FC = () => {
     setMessage('');
     
     if (isPasswordReset) {
-      if (!email) { setError("Please provide your institutional email."); return; }
+      if (!email) { setError("Please provide your username or email."); return; }
       setLoading(true);
       try {
         await resetPassword(email);
-        setMessage("Password reset credentials sent to your inbox.");
-        setTimeout(() => { setIsPasswordReset(false); setIsLogin(true); }, 5000);
+        setMessage("Password reset link sent! Please check your Inbox (and Spam).");
+        setTimeout(() => { 
+          setIsPasswordReset(false); 
+          setIsLogin(true); 
+          setMessage('');
+        }, 6000);
       } catch (err: any) {
         setError(err.message || "Failed to initiate reset.");
       } finally { setLoading(false); }
@@ -132,13 +138,20 @@ const AuthView: React.FC = () => {
               <div className="space-y-1.5">
                 <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Password</label>
                 <div className="relative">
-                  <i className="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-600"></i>
+                  <i className="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-bold"></i>
                   <input
-                    type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
+                    type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-11 pr-4 py-3.5 sm:py-4 rounded-2xl text-sm text-white font-medium placeholder:text-gray-700 outline-none transition-all duration-300 focus:ring-2 focus:ring-[#4285F4]/30"
+                    className="w-full pl-11 pr-12 py-3.5 sm:py-4 rounded-2xl text-sm text-white font-medium placeholder:text-gray-700 outline-none transition-all duration-300 focus:ring-2 focus:ring-[#4285F4]/30"
                     style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
                   />
+                  <div 
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 cursor-pointer select-none"
+                    style={{ transition: 'none', transform: 'translateY(-50%)', filter: 'none', boxShadow: 'none' }}
+                  >
+                    <i className={`fa-solid ${showPassword ? 'fa-eye' : 'fa-eye-slash'} text-sm`}></i>
+                  </div>
                 </div>
               </div>
             )}
@@ -147,13 +160,20 @@ const AuthView: React.FC = () => {
               <div className="space-y-1.5" style={{ animation: 'slideDown 0.3s ease-out' }}>
                 <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Confirm Password</label>
                 <div className="relative">
-                  <i className="fa-solid fa-shield-halved absolute left-4 top-1/2 -translate-y-1/2 text-gray-600"></i>
+                  <i className="fa-solid fa-shield-halved absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-bold"></i>
                   <input
-                    type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+                    type={showConfirmPassword ? "text" : "password"} required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-11 pr-4 py-3.5 sm:py-4 rounded-2xl text-sm text-white font-medium placeholder:text-gray-700 outline-none transition-all duration-300 focus:ring-2 focus:ring-emerald-500/30"
+                    className="w-full pl-11 pr-12 py-3.5 sm:py-4 rounded-2xl text-sm text-white font-medium placeholder:text-gray-700 outline-none transition-all duration-300 focus:ring-2 focus:ring-emerald-500/30"
                     style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
                   />
+                  <div 
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 cursor-pointer select-none"
+                    style={{ transition: 'none', transform: 'translateY(-50%)', filter: 'none', boxShadow: 'none' }}
+                  >
+                    <i className={`fa-solid ${showConfirmPassword ? 'fa-eye' : 'fa-eye-slash'} text-sm`}></i>
+                  </div>
                 </div>
               </div>
             )}

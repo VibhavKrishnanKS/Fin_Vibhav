@@ -4,11 +4,19 @@ import { Account, Category } from './types';
 export const BASE_CURRENCY = 'INR';
 export const CURRENCY_SYMBOL = '₹';
 
+export const formatCurrency = (amount: number) => {
+  if (isNaN(amount) || amount === undefined) return '0';
+  return amount.toLocaleString('en-IN', {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 0
+  });
+};
+
 export const INITIAL_ACCOUNTS: Account[] = [
-  { id: 'acc-cash', name: 'Vault Liquid', type: 'cash', balance: 5000, color: '#4285F4' },
-  { id: 'acc-1', name: 'Zenith Institutional', type: 'bank', balance: 150000, color: '#ffffff' },
-  { id: 'acc-2', name: 'Equity Portfolio', type: 'bank', balance: 45000, color: '#3B82F6' },
-  { id: 'acc-3', name: 'Centurion Credit', type: 'credit', balance: 0, creditLimit: 500000, dueDate: '15th', color: '#71717a' }
+  { id: 'acc-cash', name: 'Vault Liquid', type: 'cash', initialBalance: 5000, balance: 5000, color: '#4285F4' },
+  { id: 'acc-1', name: 'Zenith Institutional', type: 'bank', initialBalance: 150000, balance: 150000, color: '#ffffff' },
+  { id: 'acc-2', name: 'Equity Portfolio', type: 'bank', initialBalance: 45000, balance: 45000, color: '#3B82F6' },
+  { id: 'acc-3', name: 'Centurion Credit', type: 'credit', initialBalance: 0, balance: 0, creditLimit: 0, dueDate: '15th', color: '#71717a' }
 ];
 
 export const INITIAL_CATEGORIES: Category[] = [

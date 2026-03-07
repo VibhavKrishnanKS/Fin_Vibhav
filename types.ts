@@ -1,11 +1,12 @@
 
-export type TransactionType = 'income' | 'expense' | 'transfer';
+export type TransactionType = 'income' | 'expense' | 'transfer' | 'cc_action';
 export type AccountType = 'bank' | 'credit' | 'cash';
 
 export interface Account {
   id: string;
   name: string;
   type: AccountType;
+  initialBalance: number;
   balance: number;
   creditLimit?: number; 
   dueDate?: string;     
@@ -35,6 +36,7 @@ export interface Transaction {
   type: TransactionType;
   fromAccountId: string;
   toAccountId?: string;
+  ccOperation?: 'debit' | 'tally';
 }
 
 export interface AIInsight {
