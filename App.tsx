@@ -36,6 +36,7 @@ const App: React.FC = () => {
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [customExportData, setCustomExportData] = useState<Transaction[] | null>(null);
   const [toast, setToast] = useState<{ message: string, visible: boolean, onUndo: () => void } | null>(null);
   const toastTimeoutRef = useRef<number | null>(null);
 
@@ -89,8 +90,14 @@ const App: React.FC = () => {
     // 2. Map of "Tally" categories
     const tallyCatIds = cats.filter(c => c.name.toLowerCase().includes('tally')).map(c => c.id);
 
-    // 3. Reset accounts to their Initial Balance (Fallback to 0 if missing in DB)
-    const reconciled = baseAccounts.map(acc => ({ ...acc, balance: Number(acc.initialBalance) || 0 }));
+    // 3. Reset accounts to their Initial Balance
+    // Fix: If initialBalance is missing (legacy) or NaN, fall back to balance or 0
+    const reconciled = baseAccounts.map(acc => {
+      const starting = acc.initialBalance !== undefined && !isNaN(acc.initialBalance) 
+        ? Number(acc.initialBalance) 
+        : (Number(acc.balance) || 0);
+      return { ...acc, balance: starting, initialBalance: starting };
+    });
 
     // 4. Re-calculate everything chronologicaly
     sortedTxs.forEach(tx => {
@@ -177,7 +184,13 @@ const App: React.FC = () => {
     if (!user) return;
     const previousAccounts = [...accounts];
     try {
-      await saveUserData(user.uid, newAccounts, categories);
+      // Logic Fix: Re-reconcile EVERY account balance whenever account definitions (initialBalance) change
+      // This ensures that modifying the "Initial Value" immediately reflects in the "Current Balance"
+      const reconciledAccs = reconcileLedger(transactions, newAccounts, categories);
+      
+      await saveUserData(user.uid, reconciledAccs, categories);
+      setAccounts(reconciledAccs); // Update local UI immediately
+      
       if (!silent) {
         triggerToast("Accounts Updated", () => {
            setToast(p => p ? { ...p, visible: false } : null);
@@ -208,12 +221,14 @@ const App: React.FC = () => {
   const handleRebalanceHistory = async () => {
     if (!user) return;
     try {
-      // THE TRUE SYNC: Re-run every transaction from history locally
-      // This NO LONGER writes to the DB. It only aligns your current view.
+      // THE TRUE SYNC: Re-run every transaction from history and PERSIST it
       const finalAccs = reconcileLedger(transactions, accounts, categories);
       
+      // Save the cleared calculation to the cloud
+      await saveUserData(user.uid, finalAccs, categories);
+      
       setAccounts(finalAccs);
-      triggerToast("Local Ledger Aligned (Not saved to DB)");
+      triggerToast("Ledger Synced to Cloud");
     } catch (err) {
       triggerToast("Sync Failed");
     }
@@ -360,7 +375,10 @@ const App: React.FC = () => {
                 transactions={transactions} categories={categories} accounts={accounts}
                 onDelete={handleDeleteTransaction}
                 onEdit={(tx) => setEditingTransaction(tx)}
-                onOpenExport={() => setIsExportModalOpen(true)}
+                onOpenExport={(filteredList) => {
+                  setCustomExportData(filteredList);
+                  setIsExportModalOpen(true);
+                }}
               />
             )}
             {activeTab === 'settings' && (
@@ -396,7 +414,7 @@ const App: React.FC = () => {
           onSave={handleSaveTransaction} onClose={() => { setIsTxModalOpen(false); setEditingTransaction(null); }}
         />
       )}
-      {isExportModalOpen && <ExportModal transactions={transactions} accounts={accounts} categories={categories} onClose={() => setIsExportModalOpen(false)} />}
+      {isExportModalOpen && <ExportModal transactions={customExportData || transactions} accounts={accounts} categories={categories} onClose={() => { setIsExportModalOpen(false); setCustomExportData(null); }} />}
       {toast && <Toast message={toast.message} visible={toast.visible} onUndo={toast.onUndo} />}
     </div>
   );

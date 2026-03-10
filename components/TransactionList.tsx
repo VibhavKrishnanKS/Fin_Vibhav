@@ -9,7 +9,7 @@ interface TransactionListProps {
   accounts: Account[];
   onDelete: (id: string) => void;
   onEdit: (transaction: Transaction) => void;
-  onOpenExport: () => void;
+  onOpenExport: (filteredData: Transaction[]) => void;
 }
 
 const TransactionList: React.FC<TransactionListProps> = ({ transactions, categories, accounts, onDelete, onEdit, onOpenExport }) => {
@@ -22,7 +22,15 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, categor
       const matchesSearch = t.description.toLowerCase().includes(search.toLowerCase());
       const matchesType = filterType === 'all' || t.type === filterType;
       return matchesSearch && matchesType;
-    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }).sort((a, b) => {
+      const dateDiff = new Date(b.date).getTime() - new Date(a.date).getTime();
+      if (dateDiff !== 0) return dateDiff;
+      
+      // Secondary sort: Newest entry (createdAt) at the top for same-day items
+      const timeA = a.createdAt?.seconds || (typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : 0);
+      const timeB = b.createdAt?.seconds || (typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : 0);
+      return timeB - timeA;
+    });
   }, [transactions, search, filterType]);
 
   const grouped = useMemo<Record<string, Transaction[]>>(() => {
@@ -53,7 +61,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, categor
           >
             <i className="fa-solid fa-filter text-xs"></i> Filter
           </button>
-          <button onClick={onOpenExport}
+          <button onClick={() => onOpenExport(filtered)}
             className="flex-1 sm:flex-none px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-3 justify-center text-white btn-primary-glow shine-hover shadow-xl"
           >
             <i className="fa-solid fa-paper-plane text-xs"></i> Export

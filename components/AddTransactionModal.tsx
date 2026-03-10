@@ -84,11 +84,25 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
                   key={t} type="button" onClick={() => {
                     setType(t);
                     if (t === 'cc_action') {
-                      const firstCC = accounts.find(a => a.type === 'credit');
-                      if (firstCC) setFromAccountId(firstCC.id);
-                      // Auto-select a tally category if one exists
-                      const tallyCat = categories.find(c => c.name.toLowerCase().includes('tally'));
-                      if (tallyCat) setSelectedCategoryId(tallyCat.id);
+                      // Logic Fix: Smartly select accounts based on the current CC operation
+                      if (ccOperation === 'debit') {
+                        const firstCC = accounts.find(a => a.type === 'credit');
+                        if (firstCC) setFromAccountId(firstCC.id);
+                      } else {
+                        const firstBank = accounts.find(a => a.type !== 'credit');
+                        const firstCC = accounts.find(a => a.type === 'credit');
+                        if (firstBank) setFromAccountId(firstBank.id);
+                        if (firstCC) setToAccountId(firstCC.id);
+                        
+                        // Only auto-select Tally category for SETTLEMENTS, not for general credit card usage
+                        const tallyCat = categories.find(c => c.name.toLowerCase().includes('tally'));
+                        if (tallyCat) setSelectedCategoryId(tallyCat.id);
+                      }
+                    } else {
+                      // Reset to first account for non-CC types if current is not in list
+                      if (accounts.length > 0 && !accounts.find(a => a.id === fromAccountId)) {
+                        setFromAccountId(accounts[0].id);
+                      }
                     }
                   }}
                   className={`flex-1 py-3 px-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all whitespace-nowrap ${type === t ? 'bg-[#4285F4] text-white shadow-xl' : 'text-gray-500 hover:text-gray-300'}`}
@@ -105,6 +119,9 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
                     setCcOperation('debit');
                     const firstCC = accounts.find(a => a.type === 'credit');
                     if (firstCC) setFromAccountId(firstCC.id);
+                    // Reset category if it was on Tally
+                    const currentCat = categories.find(c => c.id === selectedCategoryId);
+                    if (currentCat?.name.toLowerCase().includes('tally')) setSelectedCategoryId('');
                   }}
                   className={`flex-1 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all ${ccOperation === 'debit' ? 'bg-[#EA4335] text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}
                 >
@@ -117,6 +134,10 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
                     const firstCC = accounts.find(a => a.type === 'credit');
                     if (firstBank) setFromAccountId(firstBank.id);
                     if (firstCC) setToAccountId(firstCC.id);
+                    
+                    // Auto-select Tally category for settlements
+                    const tallyCat = categories.find(c => c.name.toLowerCase().includes('tally'));
+                    if (tallyCat) setSelectedCategoryId(tallyCat.id);
                   }}
                   className={`flex-1 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all ${ccOperation === 'tally' ? 'bg-[#34A853] text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}
                 >
@@ -173,11 +194,16 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
                 <div className="relative">
                   <select 
                     value={fromAccountId} onChange={e => setFromAccountId(e.target.value)} 
-                    className={inputClass}
+                    className={`${inputClass} disabled:opacity-50`}
+                    disabled={(type === 'cc_action' ? (ccOperation === 'tally' ? accounts.filter(a => a.type !== 'credit') : accounts.filter(a => a.type === 'credit')) : accounts).length === 0}
                   >
-                    {(type === 'cc_action' ? (ccOperation === 'tally' ? accounts.filter(a => a.type !== 'credit') : accounts.filter(a => a.type === 'credit')) : accounts).map(acc => (
-                      <option key={acc.id} value={acc.id} className="bg-[#121214]">{acc.name}</option>
-                    ))}
+                    {(type === 'cc_action' ? (ccOperation === 'tally' ? accounts.filter(a => a.type !== 'credit') : accounts.filter(a => a.type === 'credit')) : accounts).length > 0 ? (
+                      (type === 'cc_action' ? (ccOperation === 'tally' ? accounts.filter(a => a.type !== 'credit') : accounts.filter(a => a.type === 'credit')) : accounts).map(acc => (
+                        <option key={acc.id} value={acc.id} className="bg-[#121214]">{acc.name}</option>
+                      ))
+                    ) : (
+                      <option value="" className="bg-[#121214]">No {type === 'cc_action' && ccOperation === 'debit' ? 'Credit Card' : 'Accounts'} Found</option>
+                    )}
                   </select>
                   <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none"></i>
                 </div>
@@ -189,11 +215,16 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ accounts, cat
                   <div className="relative">
                     <select 
                       value={toAccountId} onChange={e => setToAccountId(e.target.value)} 
-                      className={inputClass}
+                      className={`${inputClass} disabled:opacity-50`}
+                      disabled={(type === 'cc_action' ? accounts.filter(a => a.type === 'credit') : accounts).length === 0}
                     >
-                      {(type === 'cc_action' ? accounts.filter(a => a.type === 'credit') : accounts).map(acc => (
-                        <option key={acc.id} value={acc.id} disabled={acc.id === fromAccountId} className="bg-[#121214]">{acc.name}</option>
-                      ))}
+                      {(type === 'cc_action' ? accounts.filter(a => a.type === 'credit') : accounts).length > 0 ? (
+                        (type === 'cc_action' ? accounts.filter(a => a.type === 'credit') : accounts).map(acc => (
+                          <option key={acc.id} value={acc.id} disabled={acc.id === fromAccountId} className="bg-[#121214]">{acc.name}</option>
+                        ))
+                      ) : (
+                        <option value="" className="bg-[#121214]">No Credit Card Found</option>
+                      )}
                     </select>
                     <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none"></i>
                   </div>

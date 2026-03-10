@@ -12,7 +12,7 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, accounts }) => {
   const totalIncome = useMemo(() => transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0), [transactions]);
-  const totalExpense = useMemo(() => transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0), [transactions]);
+  const totalExpense = useMemo(() => transactions.filter(t => t.type === 'expense' || t.type === 'cc_action').reduce((s, t) => s + t.amount, 0), [transactions]);
 
   const globalBalance = useMemo(() => {
     return accounts.reduce((s, a) => {
@@ -30,13 +30,13 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
     return last15.map(date => ({
       date: date.split('-').slice(1).join('/'),
       income: transactions.filter(t => t.date === date && t.type === 'income').reduce((s, t) => s + t.amount, 0),
-      expense: transactions.filter(t => t.date === date && t.type === 'expense').reduce((s, t) => s + t.amount, 0),
+      expense: transactions.filter(t => t.date === date && (t.type === 'expense' || t.type === 'cc_action')).reduce((s, t) => s + t.amount, 0),
     }));
   }, [transactions]);
 
   const expensePieData = useMemo(() => {
     const catTotals: Record<string, number> = {};
-    transactions.filter(t => t.type === 'expense').forEach(t => {
+    transactions.filter(t => t.type === 'expense' || t.type === 'cc_action').forEach(t => {
       const name = categories.find(c => c.id === t.categoryId)?.name || 'Other';
       catTotals[name] = (catTotals[name] || 0) + t.amount;
     });
@@ -220,12 +220,15 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
                 }}>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor]" style={{ color: stat.color, background: stat.color }}></span>
-                    <span className="text-[9px] font-black uppercase tracking-widest opacity-50">{stat.type}</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest opacity-70" style={{ color: stat.color }}>{stat.type}</span>
                   </div>
-                  <p className="text-[11px] font-bold text-gray-300 truncate mb-1">{stat.name}</p>
-                  <p className="text-base font-black text-white">{CURRENCY_SYMBOL}{formatCurrency(stat.amount)}</p>
-                  <div className="mt-4 w-full h-[3px] rounded-full bg-white/5 relative overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-1000 group-hover:brightness-125" style={{ width: `${(stat.amount / maxAmount) * 100}%`, background: stat.color, boxShadow: `0 0 10px ${stat.color}40` }} />
+                  <p className="text-xs font-bold text-gray-300 truncate mb-1">{stat.name}</p>
+                  <p className="text-lg sm:text-xl font-black tracking-tighter" style={{ color: stat.color, textShadow: `0 0 20px ${stat.color}40` }}>
+                     <span className="text-xs mr-0.5 opacity-80">{CURRENCY_SYMBOL}</span>
+                     {formatCurrency(stat.amount)}
+                  </p>
+                  <div className="mt-5 w-full h-[4px] rounded-full bg-white/5 relative overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-1000 group-hover:brightness-125" style={{ width: `${(stat.amount / maxAmount) * 100}%`, background: stat.color, boxShadow: `0 0 10px ${stat.color}80` }} />
                   </div>
                 </div>
               );

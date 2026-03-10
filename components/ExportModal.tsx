@@ -12,7 +12,7 @@ interface ExportModalProps {
 
 const ExportModal: React.FC<ExportModalProps> = ({ transactions, accounts, categories, onClose }) => {
   const [format, setFormat] = useState<ExportFormat>('pdf');
-  const [period, setPeriod] = useState<ExportPeriod>('monthly');
+  const [period, setPeriod] = useState<ExportPeriod>('current');
   const [isExporting, setIsExporting] = useState(false);
   
   const getLocalDateString = (d: Date) => {
@@ -65,6 +65,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ transactions, accounts, categ
   const handleExport = async () => {
     setIsExporting(true);
     let dateValue = "";
+    if (period === 'current') dateValue = "current";
     if (period === 'daily') dateValue = selectedDay;
     if (period === 'weekly') dateValue = selectedDay; 
     if (period === 'monthly') dateValue = `${selectedMonthYear}-${(selectedMonth + 1).toString().padStart(2, '0')}`;
@@ -116,7 +117,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ transactions, accounts, categ
           {/* Format Section */}
           <section>
             <label className={labelClass}>File Format</label>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               {(['pdf', 'csv', 'xlsx', 'json'] as ExportFormat[]).map((f) => (
                 <button
                   key={f} onClick={() => setFormat(f)}
@@ -132,8 +133,8 @@ const ExportModal: React.FC<ExportModalProps> = ({ transactions, accounts, categ
           {/* Period Selection */}
           <section>
             <label className={labelClass}>Time Period</label>
-            <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/5">
-              {(['daily', 'weekly', 'monthly', 'yearly'] as ExportPeriod[]).map((p) => (
+            <div className="flex flex-wrap sm:flex-nowrap bg-white/5 p-1.5 rounded-2xl border border-white/5 gap-1">
+              {(['current', 'daily', 'weekly', 'monthly', 'yearly'] as ExportPeriod[]).map((p) => (
                 <button
                   key={p} onClick={() => setPeriod(p)}
                   className={`flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all ${period === p ? 'bg-[#4285F4] text-white shadow-xl' : 'text-gray-500 hover:text-gray-300'}`}
@@ -176,7 +177,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ transactions, accounts, categ
             )}
 
             {period === 'monthly' && (
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label className={labelClass}>Month</label>
                   <div className="relative">
@@ -199,7 +200,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ transactions, accounts, categ
             )}
 
             {period === 'yearly' && (
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                 {yearsGrid.map(y => (
                   <button
                     key={y} onClick={() => setSelectedYear(y)}

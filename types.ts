@@ -37,6 +37,7 @@ export interface Transaction {
   fromAccountId: string;
   toAccountId?: string;
   ccOperation?: 'debit' | 'tally';
+  createdAt?: any;
 }
 
 export interface AIInsight {

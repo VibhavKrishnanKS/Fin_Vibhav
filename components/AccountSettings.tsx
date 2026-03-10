@@ -143,16 +143,21 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ accounts, onAdd, onUp
             <div className="absolute left-0 top-0 bottom-0 w-[4px] opacity-20 group-hover:opacity-100 transition-opacity" style={{ background: acc.color, boxShadow: `0 0 15px ${acc.color}` }}></div>
             
             {editingId === acc.id ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
-                <div className="space-y-1">
+              <div className="flex flex-col sm:flex-row flex-wrap items-end gap-4">
+                <div className="space-y-1 w-full sm:w-auto flex-1 min-w-[200px]">
                   <span className="text-[9px] text-gray-500 uppercase font-black ml-1">Name</span>
                   <input className={inputClass} value={editName} onChange={(e) => setEditName(e.target.value)} />
                 </div>
-                <div className="space-y-1">
-                  <span className="text-[9px] text-gray-500 uppercase font-black ml-1">Initial Balance</span>
-                  <input className={inputClass} value={editBalance} onChange={(e) => setEditBalance(e.target.value)} type="number" />
+                <div className="space-y-1 w-full sm:w-auto flex-1 min-w-[150px]">
+                  <span className="text-[9px] text-gray-500 uppercase font-black ml-1">Initial Balance (Start)</span>
+                  <div className="relative">
+                    <input className={inputClass} value={editBalance} onChange={(e) => setEditBalance(e.target.value)} type="number" />
+                    <p className="absolute -bottom-5 left-1 text-[8px] text-[#4285F4] font-black uppercase tracking-tighter whitespace-nowrap">
+                      Current will become: {CURRENCY_SYMBOL}{formatCurrency(parseFloat(editBalance || '0') + (acc.balance - acc.initialBalance))}
+                    </p>
+                  </div>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 w-full sm:w-auto flex-1 min-w-[100px]">
                   <span className="text-[9px] text-gray-500 uppercase font-black ml-1">Type</span>
                   <div className="relative">
                     <select className={inputClass} value={editType} onChange={(e) => setEditType(e.target.value as any)}>
@@ -163,13 +168,15 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ accounts, onAdd, onUp
                   </div>
                 </div>
                 {editType === 'credit' && (
-                  <div className="space-y-1">
+                  <div className="space-y-1 w-full sm:w-auto flex-1 min-w-[150px]">
                     <span className="text-[9px] text-gray-500 uppercase font-black ml-1">Limit</span>
                     <input className={inputClass} value={editLimit} onChange={(e) => setEditLimit(e.target.value)} type="number" placeholder="Limit" />
                   </div>
                 )}
-                <button onClick={() => handleUpdate(acc.id)} className="py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white btn-primary-glow">Save</button>
-                <button onClick={() => setEditingId(null)} className="py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest glass text-gray-400">Cancel</button>
+                <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-2 mt-4 sm:mt-0">
+                  <button onClick={() => handleUpdate(acc.id)} className="w-full sm:w-auto px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white btn-primary-glow">Save</button>
+                  <button onClick={() => setEditingId(null)} className="w-full sm:w-auto px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest glass text-gray-400">Cancel</button>
+                </div>
               </div>
             ) : (
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">

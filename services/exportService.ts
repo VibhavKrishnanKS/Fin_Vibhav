@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx';
 import { CATEGORY_COLORS } from '../constants';
 
 export type ExportFormat = 'pdf' | 'csv' | 'json' | 'xlsx';
-export type ExportPeriod = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'all';
+export type ExportPeriod = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'all' | 'current';
 
 interface ExportOptions {
   format: ExportFormat;
@@ -28,7 +28,7 @@ export const exportData = async (
 
   const filtered = sourceData.filter(t => {
     if (customFiltered) return true;
-    if (period === 'all') return true;
+    if (period === 'current' || period === 'all') return true;
     if (period === 'daily') return t.date === dateValue;
     if (period === 'monthly') return t.date.startsWith(dateValue);
     if (period === 'yearly') return t.date.startsWith(dateValue);
@@ -104,7 +104,7 @@ const generatePDF = async (transactions: Transaction[], accounts: Account[], cat
 
   // 2. SUMMARY METRICS
   const income = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-  const expense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const expense = transactions.filter(t => t.type === 'expense' || t.type === 'cc_action').reduce((s, t) => s + t.amount, 0);
   const net = income - expense;
 
   const cardY = 55;
@@ -210,7 +210,7 @@ const generatePDF = async (transactions: Transaction[], accounts: Account[], cat
     t.description,
     categories.find(c => c.id === t.categoryId)?.name || '-',
     accounts.find(a => a.id === t.fromAccountId)?.name || '-',
-    `${t.type === 'income' ? '+' : '-'}${t.amount.toLocaleString('en-IN')}`
+    `${t.type === 'income' ? '+' : (t.type === 'transfer' ? '' : '-')}${t.amount.toLocaleString('en-IN')}`
   ]);
 
   autoTable(doc, {
