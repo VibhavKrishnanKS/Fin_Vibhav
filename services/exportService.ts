@@ -254,3 +254,4 @@ const downloadFile = (content: string, name: string, type: string) => {
   a.href = url; a.download = name; a.click();
   URL.revokeObjectURL(url);
 };
+
