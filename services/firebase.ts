@@ -74,29 +74,58 @@ export const loginUser = async (identifier: string, pass: string) => {
 
 export const registerUser = async (email: string, pass: string, username: string) => {
   const lowerUsername = username.toLowerCase();
+  console.log("Registering user:", { email, lowerUsername });
+  
   // Check if username already exists
-  const usernameDoc = await getDoc(doc(db, "usernames", lowerUsername));
-  if (usernameDoc.exists()) {
-    throw new Error("Username already taken.");
+  try {
+    const usernameDoc = await getDoc(doc(db, "usernames", lowerUsername));
+    if (usernameDoc.exists()) {
+      throw new Error("Username already taken.");
+    }
+  } catch (error: any) {
+    if (error.code === 'permission-denied') {
+      console.error("Firestore Permission Denied (checking username):", error);
+    }
+    throw error;
   }
 
+  console.log("Creating auth user...");
   const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
   const userId = userCredential.user.uid;
+  console.log("Auth user created. UID:", userId);
 
   // Save username mapping
-  await setDoc(doc(db, "usernames", lowerUsername), {
-    email: email,
-    userId: userId
-  });
+  console.log("Saving username mapping...");
+  try {
+    await setDoc(doc(db, "usernames", lowerUsername), {
+      email: email,
+      userId: userId
+    });
+    console.log("Username mapping saved.");
+  } catch (error: any) {
+    console.error("Firestore Permission Denied (saving username):", error);
+    throw error;
+  }
 
   // Save user profile with username
-  await setDoc(doc(db, "users", userId), {
-    profile: {
-      email,
-      username: lowerUsername,
-      createdAt: new Date().toISOString()
-    }
-  }, { merge: true });
+  console.log("Saving user profile...");
+  try {
+    await setDoc(doc(db, "users", userId), {
+      profile: {
+        email,
+        username: lowerUsername,
+        createdAt: new Date().toISOString()
+      }
+    }, { merge: true });
+    console.log("User profile saved.");
+  } catch (error: any) {
+    console.error("Firestore Permission Denied (saving profile):", error);
+    throw error;
+  }
+
+  // Force sign out immediately after registration to satisfy the "Sign up only" requirement
+  await signOut(auth);
+  console.log("Registration complete. Forced sign-out for manual login flow.");
 
   return userCredential;
 };

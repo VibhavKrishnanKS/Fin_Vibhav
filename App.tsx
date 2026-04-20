@@ -42,6 +42,14 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
+      // THE FIX: Check if we are currently in a Registration flow
+      const isRegistering = sessionStorage.getItem('vibhav_registering') === 'true';
+      
+      if (u && isRegistering) {
+        // Ignore this state change and wait for the manual logout inside firebase.ts
+        return;
+      }
+      
       setUser(u as User | null);
       setAuthLoading(false);
       const splash = document.getElementById('splash-screen');
@@ -168,7 +176,7 @@ const App: React.FC = () => {
       await saveUserData(user.uid, finalAccs, categories);
       
       if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-      setToast({ message: "Transaction Terminated", visible: true, onUndo: () => {
+      setToast({ message: "Transaction Deleted", visible: true, onUndo: () => {
          const tx = transactions.find(t => t.id === id);
          if (tx) {
            const { id: _, ...raw } = tx;
@@ -237,96 +245,101 @@ const App: React.FC = () => {
   if (authLoading) return null;
   if (!user) return <AuthView />;
 
+  const tabLabels: Record<string, string> = {
+    dashboard: 'Overview',
+    transactions: 'Transactions',
+    settings: 'Settings',
+  };
+
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row text-white overflow-hidden bg-[#0a0f1a]" style={{ WebkitFontSmoothing: 'antialiased' }}>
+    <div className="min-h-screen flex flex-col lg:flex-row text-white overflow-hidden" style={{ background: 'var(--base)', WebkitFontSmoothing: 'antialiased' }}>
       <Background3D />
 
-      {/* INSTITUTIONAL SIDEBAR (DESKTOP) */}
-      <aside className="hidden lg:flex w-[280px] h-screen sticky top-0 flex-col z-20 p-5">
-        <div className="flex-1 flex flex-col rounded-[32px] p-6 glass relative overflow-y-auto custom-scrollbar" style={{ boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
-          {/* Top Logo Section */}
-          <div className="flex items-center gap-4 mb-10 px-1">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center relative group shine-hover overflow-hidden" style={{
-              background: 'linear-gradient(135deg, #4285F4, #34A853)',
-              boxShadow: '0 8px 24px rgba(66,133,244,0.3)',
-            }}>
-              <i className="fa-solid fa-vault text-white text-lg transition-transform duration-500 group-hover:scale-110"></i>
+      {/* SIDEBAR (DESKTOP) */}
+      <aside className="hidden lg:flex w-[260px] h-screen sticky top-0 flex-col z-20 p-4">
+        <div className="flex-1 flex flex-col rounded-card p-5 relative overflow-y-auto custom-scrollbar" style={{
+          background: 'var(--surface-1)',
+          border: '1px solid rgba(255,255,255,0.04)',
+        }}>
+          {/* Logo */}
+          <div className="flex items-center gap-3 mb-8 px-1">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#4285F4' }}>
+              <i className="fa-solid fa-vault text-white text-sm"></i>
             </div>
             <div>
-              <h1 className="text-lg font-display font-black tracking-tighter text-white leading-none">VibhavWealth</h1>
-              <p className="text-[9px] text-gray-500 font-bold uppercase tracking-[0.2em] mt-1.5 opacity-60">Personal Finance</p>
+              <h1 className="text-base font-display font-bold tracking-tight text-white leading-none">VibhavWealth</h1>
+              <p className="text-[9px] text-text-muted font-semibold uppercase tracking-wider mt-1">Personal Finance</p>
             </div>
           </div>
 
-          {/* Navigation Matrix */}
-          <nav className="space-y-2 flex-1">
-            <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.3em] px-3 mb-4">Menu</p>
+          {/* Navigation */}
+          <nav className="space-y-1 flex-1">
+            <p className="text-[9px] font-bold text-text-muted uppercase tracking-widest px-3 mb-3">Menu</p>
             {[
               { id: 'dashboard', icon: 'fa-chart-pie', label: 'Overview' },
-              { id: 'transactions', icon: 'fa-list', label: 'Transactions' },
+              { id: 'transactions', icon: 'fa-receipt', label: 'Transactions' },
               { id: 'settings', icon: 'fa-gear', label: 'Settings' }
             ].map(item => (
               <button
                 key={item.id} onClick={() => setActiveTab(item.id as any)}
-                className="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 relative group shine-hover"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-pill text-[12px] font-semibold transition-all duration-200 relative"
                 style={{
-                  background: activeTab === item.id ? 'rgba(66,133,244,0.1)' : 'transparent',
-                  color: activeTab === item.id ? '#8ab4f8' : '#6b7280',
-                  boxShadow: activeTab === item.id ? 'inset 0 0 10px rgba(66,133,244,0.05)' : 'none'
+                  background: activeTab === item.id ? 'rgba(138,180,248,0.08)' : 'transparent',
+                  color: activeTab === item.id ? '#8ab4f8' : '#9aa0a6',
                 }}
               >
-                {activeTab === item.id && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-[#4285F4] shadow-[0_0_10px_#4285F4]" />}
-                <i className={`fa-solid ${item.icon} w-5 text-center text-sm transition-transform duration-300 group-hover:scale-110`}></i>
-                <span className="tracking-wide uppercase text-[11px]">{item.label}</span>
+                {activeTab === item.id && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary" />}
+                <i className={`fa-solid ${item.icon} w-5 text-center text-sm`}></i>
+                <span>{item.label}</span>
               </button>
             ))}
           </nav>
 
-          {/* Stakeholder Identity */}
-          <div className="pt-6 mt-auto border-t border-white/5">
-            <div className="flex items-center gap-3 px-3 py-3 rounded-2xl mb-4 glass group cursor-pointer" style={{ background: 'rgba(255,255,255,0.02)' }}>
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #4285F4, #8ab4f8)', color: 'white' }}>
-                <span className="relative z-10">{user.email?.charAt(0).toUpperCase()}</span>
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+          {/* User Section */}
+          <div className="pt-4 mt-auto" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+            <div className="flex items-center gap-3 px-3 py-2.5 rounded-pill mb-2" style={{ background: 'var(--surface-2)' }}>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold" style={{ background: '#4285F4', color: 'white' }}>
+                {user.email?.charAt(0).toUpperCase()}
               </div>
               <div className="overflow-hidden flex-1">
-                <p className="text-[11px] font-bold text-gray-300 truncate tracking-tight">{user.email?.split('@')[0]}</p>
-                <p className="text-[9px] text-gray-600 font-bold truncate tracking-widest uppercase mt-0.5">User</p>
+                <p className="text-[11px] font-semibold text-text-secondary truncate">{user.email?.split('@')[0]}</p>
+                <p className="text-[9px] text-text-muted font-medium">User</p>
               </div>
             </div>
-            <button onClick={logoutUser} className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 hover:text-red-400 hover:bg-red-500/5 transition-all group">
-              <i className="fa-solid fa-power-off text-[11px] transition-transform group-hover:rotate-90"></i>
-              Logout
+            <button onClick={logoutUser} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-pill text-[10px] font-semibold text-text-muted hover:text-[#f28b82] hover:bg-[#f28b82]/5 transition-all">
+              <i className="fa-solid fa-arrow-right-from-bracket text-[11px]"></i>
+              Sign out
             </button>
           </div>
         </div>
       </aside>
 
       {/* MOBILE BOTTOM NAV */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-5 pb-[env(safe-area-inset-bottom)]" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}>
-        <div className="flex items-center justify-around py-2.5 rounded-[28px] mx-auto max-w-md glass" style={{
-           boxShadow: '0 -10px 40px rgba(0,0,0,0.5)',
-           border: '1px solid rgba(255,255,255,0.1)'
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[env(safe-area-inset-bottom)]" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 8px)' }}>
+        <div className="flex items-center justify-around py-2 rounded-card mx-auto max-w-md" style={{
+           background: 'var(--surface-1)',
+           border: '1px solid rgba(255,255,255,0.06)',
+           boxShadow: '0 -4px 30px rgba(0,0,0,0.4)',
         }}>
           {[
             { id: 'dashboard', icon: 'fa-chart-simple', label: 'Home' },
-            { id: 'transactions', icon: 'fa-list-ul', label: 'History' },
+            { id: 'transactions', icon: 'fa-receipt', label: 'History' },
             { id: 'add', icon: 'fa-plus', label: 'Add', isAction: true },
             { id: 'settings', icon: 'fa-gear', label: 'Settings' },
           ].map(item => item.isAction ? (
             <button key="add" onClick={() => setIsTxModalOpen(true)}
-              className="w-14 h-14 rounded-2xl flex items-center justify-center text-white -mt-8 active:scale-90 transition-all btn-primary-glow shine-hover shadow-2xl"
-              style={{ background: 'linear-gradient(135deg, #4285F4, #3b78e7)' }}
+              className="w-12 h-12 rounded-2xl flex items-center justify-center text-white -mt-6 active:scale-90 transition-all"
+              style={{ background: '#4285F4', boxShadow: '0 4px 12px rgba(66,133,244,0.3)' }}
             >
-              <i className="fa-solid fa-plus text-xl"></i>
+              <i className="fa-solid fa-plus text-lg"></i>
             </button>
           ) : (
             <button key={item.id} onClick={() => setActiveTab(item.id as any)}
-              className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all"
-              style={{ color: activeTab === item.id ? '#8ab4f8' : '#4b5563' }}
+              className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl transition-all"
+              style={{ color: activeTab === item.id ? '#8ab4f8' : '#5f6368' }}
             >
-              <i className={`fa-solid ${item.icon} text-lg`}></i>
-              <span className="text-[8px] font-black uppercase tracking-widest">{item.label}</span>
+              <i className={`fa-solid ${item.icon} text-base`}></i>
+              <span className="text-[8px] font-bold uppercase tracking-wider">{item.label}</span>
             </button>
           ))}
         </div>
@@ -334,36 +347,36 @@ const App: React.FC = () => {
 
       {/* MAIN VIEWPORT */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-10 min-h-screen overscroll-behavior-y-contain">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-8 sm:py-10 lg:py-12 pb-36 lg:pb-12" key={activeTab} style={{ animation: 'pageIn 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }}>
-          {/* Tactical Header */}
-          <header className="flex flex-col sm:flex-row sm:items-center justify-between mb-10 sm:mb-12 gap-6 pb-6 border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8 lg:py-10 pb-32 lg:pb-10" key={activeTab} style={{ animation: 'pageIn 0.4s ease both' }}>
+          {/* Header */}
+          <header className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 sm:mb-10 gap-4 pb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
             <div>
-              <div className="flex items-center gap-3 mb-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]"></span>
-                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.4em]">Safe & Secure</p>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                <p className="text-[10px] text-text-muted font-semibold uppercase tracking-wider">Secure Session</p>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-display font-black tracking-tighter text-white capitalize">{activeTab}</h2>
+              <h2 className="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white">{tabLabels[activeTab]}</h2>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="lg:hidden flex items-center gap-3 px-4 py-2.5 rounded-2xl glass" style={{ background: 'rgba(255,255,255,0.02)' }}>
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-black" style={{ background: 'linear-gradient(135deg, #4285F4, #8ab4f8)', color: 'white' }}>
+              <div className="lg:hidden flex items-center gap-2.5 px-3 py-2 rounded-pill" style={{ background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold" style={{ background: '#4285F4', color: 'white' }}>
                   {user.email?.charAt(0).toUpperCase()}
                 </div>
-                <button onClick={logoutUser} className="text-gray-500 hover:text-red-400 transition-all p-1">
-                  <i className="fa-solid fa-power-off text-xs"></i>
+                <button onClick={logoutUser} className="text-text-muted hover:text-[#f28b82] transition-all p-1">
+                  <i className="fa-solid fa-arrow-right-from-bracket text-xs"></i>
                 </button>
               </div>
               <button onClick={() => setIsTxModalOpen(true)}
-                className="hidden sm:flex px-6 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-white items-center gap-3 active:scale-95 transition-all btn-primary-glow shine-hover shadow-xl"
+                className="hidden sm:flex px-5 py-3 rounded-pill text-[11px] font-semibold text-white items-center gap-2.5 active:scale-95 transition-all btn-primary-glow"
               >
                 <i className="fa-solid fa-plus text-[10px]"></i> New Entry
               </button>
             </div>
           </header>
 
-          {/* Operation Content */}
-          <div className="space-y-8 sm:space-y-12">
+          {/* Content */}
+          <div className="space-y-6 sm:space-y-8">
             {activeTab === 'dashboard' && (
               <>
                 <AccountSummary accounts={accounts} />
@@ -382,7 +395,7 @@ const App: React.FC = () => {
               />
             )}
             {activeTab === 'settings' && (
-              <div className="max-w-4xl space-y-10 sm:space-y-12">
+              <div className="max-w-4xl space-y-8 sm:space-y-10">
                 <AccountSettings
                   accounts={accounts}
                   onAdd={(a) => handleUpdateAccounts([...accounts, { ...a, id: `acc-${Date.now()}` }])}
@@ -402,9 +415,8 @@ const App: React.FC = () => {
         </div>
 
         <style>{`
-          @keyframes pageIn { from { opacity: 0; transform: translateY(32px); } to { opacity: 1; transform: translateY(0); } }
-          .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-          .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+          .custom-scrollbar::-webkit-scrollbar { width: 3px; }
+          .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.04); border-radius: 10px; }
         `}</style>
       </main>
 

@@ -45,9 +45,28 @@ const AuthView: React.FC = () => {
     
     setLoading(true);
     try {
-      if (isLogin) await loginUser(email, password); // email here is the identifier (email or username)
-      else await registerUser(email, password, username);
+      if (isLogin) {
+        await loginUser(email, password); // email here is the identifier (email or username)
+      } else {
+        // Set flag to prevent App.tsx from flashing dashboard
+        sessionStorage.setItem('vibhav_registering', 'true');
+        
+        await registerUser(email, password, username);
+        
+        // Clear flag after registration is complete
+        sessionStorage.removeItem('vibhav_registering');
+        
+        setMessage("Account successfully created! Please log in.");
+        setTimeout(() => {
+          setIsLogin(true);
+          setEmail('');
+          setUsername('');
+          setPassword('');
+          setConfirmPassword('');
+        }, 1500); // Small wait to show the message
+      }
     } catch (err: any) {
+      sessionStorage.removeItem('vibhav_registering'); // Clean up on error
       let msg = err.message || "Authentication failed.";
       if (msg.includes("auth/email-already-in-use")) msg = "Identifier already registered.";
       if (msg.includes("auth/invalid-credential")) msg = "Invalid credentials.";
@@ -61,6 +80,10 @@ const AuthView: React.FC = () => {
     setIsPasswordReset(false);
     setError('');
     setMessage('');
+    setEmail('');
+    setUsername('');
+    setPassword('');
+    setConfirmPassword('');
   };
 
   return (
@@ -163,6 +186,7 @@ const AuthView: React.FC = () => {
                   <i className="fa-solid fa-shield-halved absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-bold"></i>
                   <input
                     type={showConfirmPassword ? "text" : "password"} required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+                    onPaste={(e) => e.preventDefault()}
                     placeholder="••••••••"
                     className="w-full pl-11 pr-12 py-3.5 sm:py-4 rounded-2xl text-sm text-white font-medium placeholder:text-gray-700 outline-none transition-all duration-300 focus:ring-2 focus:ring-emerald-500/30"
                     style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}

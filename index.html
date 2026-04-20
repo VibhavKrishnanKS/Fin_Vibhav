@@ -11,7 +11,7 @@
       type="image/svg+xml"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%234285F4%22/><path d=%22M50 25 L80 75 L20 75 Z%22 fill=%22white%22 opacity=%220.9%22/><path d=%22M50 45 L65 75 L35 75 Z%22 fill=%22%230a0f1a%22/></svg>"
     />
-    <meta name="theme-color" content="#0a0f1a" />
+    <meta name="theme-color" content="#0b0d12" />
     <link rel="manifest" href="manifest.json" />
     <title>VibhavWealth • Intelligent Finance</title>
 
@@ -55,16 +55,29 @@
         theme: {
           extend: {
             colors: {
-              primary: "#4285F4",
-              secondary: "#34A853",
-              accent: "#FBBC04",
-              critical: "#EA4335",
-              base: "#0a0f1a",
-              surface: "rgba(255,255,255,0.03)",
+              primary: "#8ab4f8",
+              "primary-deep": "#4285F4",
+              secondary: "#81c995",
+              "secondary-deep": "#34A853",
+              accent: "#fdd663",
+              critical: "#f28b82",
+              "critical-deep": "#EA4335",
+              base: "#0b0d12",
+              "surface-1": "#12141a",
+              "surface-2": "#1a1d24",
+              "surface-3": "#22252e",
+              "border-subtle": "rgba(255,255,255,0.06)",
+              "text-primary": "#e8eaed",
+              "text-secondary": "#9aa0a6",
+              "text-muted": "#5f6368",
             },
             fontFamily: {
               display: ["Plus Jakarta Sans", "sans-serif"],
               sans: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              card: "20px",
+              pill: "14px",
             },
           },
         },
@@ -82,10 +95,13 @@
 
     <style>
       :root {
-        --primary: #4285f4;
-        --secondary: #34a853;
-        --base: #0a0f1a;
-        --glow: rgba(66, 133, 244, 0.4);
+        --primary: #8ab4f8;
+        --primary-deep: #4285f4;
+        --secondary: #81c995;
+        --base: #0b0d12;
+        --surface-1: #12141a;
+        --surface-2: #1a1d24;
+        --surface-3: #22252e;
       }
 
       * {
@@ -103,40 +119,55 @@
         font-family: "Inter", sans-serif;
       }
 
-      /* GLOBAL GLASSMORHPISM */
+      /* ============================================= */
+      /* CLEAN SURFACE CARDS (replaces glassmorphism)  */
+      /* ============================================= */
       .glass {
-        background: rgba(255, 255, 255, 0.03) !important;
-        backdrop-filter: blur(20px) saturate(180%) !important;
-        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        background: var(--surface-1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
       }
 
-      /* SUPER GLOWING BUTTONS */
-      button,
-      .btn-glow {
+      .surface-2 {
+        background: var(--surface-2);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .surface-3 {
+        background: var(--surface-3);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      /* ============================================= */
+      /* BUTTONS - Smooth, no glow                     */
+      /* ============================================= */
+      button {
         position: relative;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transition: all 0.2s ease !important;
       }
 
       button:hover {
         transform: translateY(-1px);
-        box-shadow: 0 0 20px var(--glow);
-        filter: brightness(1.1);
+        filter: brightness(1.05);
+        box-shadow: none;
       }
 
       button:active {
-        transform: translateY(1px) scale(0.98);
+        transform: translateY(0px) scale(0.98);
       }
 
       .btn-primary-glow {
-        background: linear-gradient(135deg, #4285f4, #3b78e7) !important;
-        box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3) !important;
+        background: var(--primary-deep) !important;
+        box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2) !important;
       }
       .btn-primary-glow:hover {
-        box-shadow: 0 0 25px rgba(66, 133, 244, 0.5) !important;
+        box-shadow: 0 4px 16px rgba(66, 133, 244, 0.25) !important;
       }
 
-      /* SHINE EFFECT ON HOVER */
+      /* ============================================= */
+      /* SHINE EFFECT — subtle sweep                   */
+      /* ============================================= */
       .shine-hover {
         overflow: hidden;
       }
@@ -145,25 +176,28 @@
         position: absolute;
         top: -50%;
         left: -150%;
-        width: 100%;
+        width: 80%;
         height: 200%;
         background: linear-gradient(
           90deg,
           transparent,
-          rgba(255, 255, 255, 0.1),
+          rgba(255, 255, 255, 0.03),
           transparent
         );
         transform: rotate(25deg);
-        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.7s ease;
       }
       .shine-hover:hover::after {
         left: 150%;
       }
 
+      /* ============================================= */
+      /* SPLASH SCREEN                                 */
+      /* ============================================= */
       #splash-screen {
         position: fixed;
         inset: 0;
-        background: #0a0f1a;
+        background: #0b0d12;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -178,60 +212,48 @@
       }
 
       .splash-logo {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        border-radius: 24px;
+        width: 72px;
+        height: 72px;
+        background: var(--primary-deep);
+        border-radius: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 0 60px rgba(66, 133, 244, 0.4);
         position: relative;
         z-index: 2;
       }
 
       .splash-logo-glow {
         position: absolute;
-        inset: -20px;
+        inset: -16px;
         background: radial-gradient(
           circle,
-          rgba(66, 133, 244, 0.25) 0%,
+          rgba(66, 133, 244, 0.12) 0%,
           transparent 70%
         );
-        animation: breath 2s infinite ease-in-out;
+        animation: breath 2.5s infinite ease-in-out;
       }
 
       @keyframes breath {
-        0%,
-        100% {
-          transform: scale(1);
-          opacity: 0.4;
-        }
-        50% {
-          transform: scale(1.3);
-          opacity: 0.7;
-        }
+        0%, 100% { transform: scale(1); opacity: 0.3; }
+        50% { transform: scale(1.15); opacity: 0.5; }
       }
 
       .splash-text {
         font-family: "Plus Jakarta Sans", sans-serif;
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 800;
-        color: white;
-        letter-spacing: 0.6em;
+        letter-spacing: 0.5em;
         text-transform: uppercase;
-        margin-bottom: 12px;
-        background: linear-gradient(to right, #fff, #9aa0a6);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
+        margin-bottom: 16px;
+        color: #9aa0a6;
         animation: fadeInUp 0.8s ease-out;
       }
 
       .loading-bar-container {
-        width: 180px;
+        width: 160px;
         height: 2px;
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.04);
         border-radius: 10px;
         overflow: hidden;
       }
@@ -239,57 +261,94 @@
       .loading-bar-fill {
         width: 0%;
         height: 100%;
-        background: linear-gradient(to right, var(--primary), var(--secondary));
+        background: var(--primary-deep);
         border-radius: 10px;
         animation: load 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
       }
 
       @keyframes load {
-        0% {
-          width: 0%;
-        }
-        60% {
-          width: 85%;
-        }
-        100% {
-          width: 100%;
-        }
+        0% { width: 0%; }
+        60% { width: 85%; }
+        100% { width: 100%; }
       }
 
       @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
       }
 
-      /* Custom scrollbar */
+      /* ============================================= */
+      /* SCROLLBAR — minimal                           */
+      /* ============================================= */
       ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
+        width: 5px;
+        height: 5px;
       }
       ::-webkit-scrollbar-track {
         background: transparent;
       }
       ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.06);
         border-radius: 10px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.12);
       }
 
-      /* Input autofill styling */
+      /* ============================================= */
+      /* INPUT AUTOFILL                                */
+      /* ============================================= */
       input:-webkit-autofill,
       input:-webkit-autofill:hover,
       input:-webkit-autofill:focus {
         -webkit-text-fill-color: white;
-        -webkit-box-shadow: 0 0 0px 1000px #1e1e1e inset;
+        -webkit-box-shadow: 0 0 0px 1000px var(--surface-2) inset;
         transition: background-color 5000s ease-in-out 0s;
+      }
+
+      /* ============================================= */
+      /* ANIMATIONS                                    */
+      /* ============================================= */
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes pageIn {
+        from { opacity: 0; transform: translateY(24px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.96); }
+        to { opacity: 1; transform: scale(1); }
+      }
+
+      @keyframes modalIn {
+        from { opacity: 0; transform: scale(0.95) translateY(10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+      }
+
+      @keyframes backdropIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      /* ============================================= */
+      /* ORIENTATION + RESPONSIVE HELPERS              */
+      /* ============================================= */
+      @media (orientation: landscape) and (max-height: 500px) {
+        .landscape-compact { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+        .landscape-hide { display: none !important; }
+      }
+
+      @media (max-width: 360px) {
+        .glass { border-radius: 16px !important; }
       }
     </style>
 
@@ -299,9 +358,9 @@
       <div class="splash-logo-container">
         <div class="splash-logo-glow"></div>
         <div class="splash-logo">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
             <path d="M12 2L21 20H3L12 2Z" fill="white" />
-            <path d="M12 7L18.5 20H5.5L12 7Z" fill="rgba(0,0,0,0.1)" />
+            <path d="M12 7L18.5 20H5.5L12 7Z" fill="rgba(0,0,0,0.15)" />
           </svg>
         </div>
       </div>

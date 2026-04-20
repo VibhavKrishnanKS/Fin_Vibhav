@@ -11,38 +11,32 @@ const AccountSummary: React.FC<AccountSummaryProps> = ({ accounts }) => {
   const total = accounts.reduce((s, a) => s + (a.type !== 'credit' ? a.balance : (a.balance - (a.creditLimit || 0))), 0);
 
   return (
-    <div className="space-y-6" style={{ animation: 'fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }}>
-      {/* Net Worth Vault Banner */}
-      <div className="glass p-6 sm:p-8 rounded-[36px] relative overflow-hidden group shine-hover">
-        {/* Animated Background Accent */}
-        <div className="absolute top-[-50%] left-[-10%] w-[120%] h-[200%] opacity-[0.05] pointer-events-none" style={{
-          background: 'radial-gradient(circle at center, #4285F4 0%, transparent 70%)',
-          animation: 'orbFloat1 20s infinite linear'
-        }}></div>
-        
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
+    <div className="space-y-5" style={{ animation: 'fadeUp 0.4s ease both' }}>
+      {/* Net Worth Banner */}
+      <div className="p-5 sm:p-7 rounded-card relative overflow-hidden" style={{ background: 'var(--surface-1)', border: '1px solid rgba(255,255,255,0.04)' }}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 relative z-10">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <i className="fa-solid fa-shield-halved text-[#4285F4] text-xs"></i>
-              <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.4em]">Comprehensive Portfolio Value</p>
+              <i className="fa-solid fa-shield-halved text-primary text-xs"></i>
+              <p className="text-[10px] font-bold uppercase text-text-muted tracking-widest">Portfolio Value</p>
             </div>
-            <p className="text-3xl sm:text-5xl font-black text-white tracking-tight flex items-baseline gap-2">
-              <span className="text-xl sm:text-2xl text-gray-500 font-medium">{CURRENCY_SYMBOL}</span>
+            <p className="text-3xl sm:text-4xl font-bold text-white tracking-tight flex items-baseline gap-1.5">
+              <span className="text-lg sm:text-xl text-text-muted font-medium">{CURRENCY_SYMBOL}</span>
               {formatCurrency(total)}
             </p>
           </div>
-          <div className="flex items-center gap-3 px-5 py-3 rounded-2xl glass active:scale-95 transition-transform cursor-pointer" style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+          <div className="flex items-center gap-3 px-4 py-2.5 rounded-pill" style={{ background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,0.04)' }}>
             <div className="relative">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping absolute inset-0"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 relative"></div>
+              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping absolute inset-0 opacity-50"></div>
+              <div className="w-2 h-2 rounded-full bg-emerald-400 relative"></div>
             </div>
-            <span className="text-white text-xs font-bold uppercase tracking-widest">{accounts.length} Assets Synchronized</span>
+            <span className="text-text-secondary text-[10px] font-semibold uppercase tracking-wider">{accounts.length} Accounts Active</span>
           </div>
         </div>
       </div>
 
-      {/* Account Asset Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
+      {/* Account Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         {accounts.map((acc, index) => {
           const isCredit = acc.type === 'credit';
           const spent = isCredit ? (acc.creditLimit || 0) - acc.balance : 0;
@@ -52,57 +46,54 @@ const AccountSummary: React.FC<AccountSummaryProps> = ({ accounts }) => {
           return (
             <div
               key={acc.id}
-              className="glass group relative p-6 rounded-[32px] cursor-default transition-all duration-300 hover:translate-y-[-6px] shine-hover"
+              className="group relative p-5 rounded-card cursor-default transition-all duration-200 hover:translate-y-[-3px]"
               style={{
-                animation: `fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.1}s both`,
-                boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
+                animation: `fadeUp 0.4s ease ${index * 0.07}s both`,
+                background: 'var(--surface-1)',
+                border: '1px solid rgba(255,255,255,0.04)',
               }}
             >
-              {/* Asset Highlight */}
-              <div className="absolute top-0 left-12 right-12 h-[3px] rounded-b-full opacity-0 group-hover:opacity-100 transition-all duration-500" 
-                style={{ background: acc.color, boxShadow: `0 0 20px ${acc.color}` }} />
+              {/* Hover accent */}
+              <div className="absolute top-0 left-8 right-8 h-[2px] rounded-b-full opacity-0 group-hover:opacity-100 transition-opacity duration-200" 
+                style={{ background: acc.color }} />
 
-              <div className="flex items-start justify-between mb-6">
-                <div className="w-12 h-12 rounded-[18px] flex items-center justify-center transition-all duration-500 group-hover:rotate-[10deg] group-hover:scale-110"
-                  style={{ background: `${acc.color}12`, color: acc.color, border: `1px solid ${acc.color}25` }}>
-                  <i className={`fa-solid ${icon} text-lg`}></i>
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300"
+                  style={{ background: `${acc.color}10`, color: acc.color }}>
+                  <i className={`fa-solid ${icon} text-base`}></i>
                 </div>
-                <div className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest glass" style={{ color: acc.color }}>
-                  {acc.type === 'bank' ? 'Treasury' : acc.type === 'credit' ? 'Liability' : 'Reserve'}
+                <div className="px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider" style={{ color: acc.color, background: `${acc.color}08` }}>
+                  {acc.type === 'bank' ? 'Bank' : acc.type === 'credit' ? 'Credit' : 'Cash'}
                 </div>
               </div>
 
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1.5">{acc.name}</p>
-              <p className="text-2xl font-black text-white tracking-tight">
-                <span className="text-xs text-gray-600 font-medium mr-1">{CURRENCY_SYMBOL}</span>
+              <p className="text-[10px] text-text-muted font-semibold uppercase tracking-wider mb-1">{acc.name}</p>
+              <p className="text-xl font-bold text-white tracking-tight">
+                <span className="text-[10px] text-text-muted font-medium mr-0.5">{CURRENCY_SYMBOL}</span>
                 {formatCurrency(acc.balance)}
               </p>
 
               {isCredit ? (
-                <div className="mt-5 space-y-2">
-                  <div className="w-full h-[6px] rounded-full bg-white/5 relative overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-[1.5s] ease-out group-hover:brightness-125" 
-                      style={{ width: `${Math.min(utilization, 100)}%`, background: acc.color, boxShadow: `0 0 10px ${acc.color}40` }} />
+                <div className="mt-4 space-y-1.5">
+                  <div className="w-full h-[3px] rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    <div className="h-full rounded-full transition-all duration-700" 
+                      style={{ width: `${Math.min(utilization, 100)}%`, background: acc.color, opacity: 0.7 }} />
                   </div>
-                  <div className="flex justify-between text-[9px] font-bold uppercase tracking-widest text-gray-500">
-                    <span>{utilization.toFixed(1)}% Intensity</span>
-                    <span>{CURRENCY_SYMBOL}{formatCurrency(acc.creditLimit || 0)} Cap</span>
+                  <div className="flex justify-between text-[9px] font-medium text-text-muted">
+                    <span>{utilization.toFixed(0)}% used</span>
+                    <span>{CURRENCY_SYMBOL}{formatCurrency(acc.creditLimit || 0)} limit</span>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 mt-5 text-[9px] font-bold uppercase tracking-[0.2em] text-gray-600 group-hover:text-emerald-500 transition-colors">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
-                  Verified Asset
+                <div className="flex items-center gap-1.5 mt-4 text-[9px] font-medium text-text-muted">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                  Active
                 </div>
               )}
             </div>
           );
         })}
       </div>
-
-      <style>{`
-        @keyframes orbFloat1 { 0% { transform: rotate(0deg) translate(20px) rotate(0deg); } 100% { transform: rotate(360deg) translate(20px) rotate(-360deg); } }
-      `}</style>
     </div>
   );
 };
