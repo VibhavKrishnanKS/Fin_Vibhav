@@ -24,6 +24,7 @@ import {
   updateDoc,
   query,
   orderBy,
+  getDocs,
   serverTimestamp
 } from "firebase/firestore";
 import type { Transaction, Account, Category } from "../types";
@@ -235,4 +236,49 @@ export const deleteFirebaseTransaction = async (userId: string, txId: string) =>
     console.error("Firestore Error (deleteFirebaseTransaction):", error);
     throw error;
   }
+};
+
+/**
+ * Fresh Start – delete every transaction and reset account balances.
+ * @param userId       Authenticated user's UID
+ * @param accounts     Current account list (used to reset balances)
+ * @param categories   Current category list
+ * @param keepAccounts When true  → keep existing accounts/categories, just zero-out their running balances.
+ *                     When false → wipe accounts/categories too and restore app defaults.
+ */
+export const clearAllData = async (
+  userId: string,
+  accounts: Account[],
+  categories: Category[],
+  keepAccounts: boolean
+): Promise<void> => {
+  if (!auth.currentUser || auth.currentUser.uid !== userId)
+    throw new Error("Security Violation: Clear Denied.");
+
+  // 1. Fetch every transaction doc
+  const txCollection = collection(db, "users", userId, "transactions");
+  const snapshot = await getDocs(txCollection);
+
+  // 2. Delete them all (in parallel for speed)
+  const deletions = snapshot.docs.map((d) => deleteDoc(d.ref));
+  await Promise.all(deletions);
+  console.log(`Firestore: Cleared ${snapshot.size} transactions.`);
+
+  // 3. Reset accounts to initial balances
+  const resetAccounts: Account[] = accounts.map((acc) => ({
+    ...acc,
+    balance: acc.initialBalance ?? 0,
+  }));
+
+  // 4. Persist — keep categories & accounts (or defaults)
+  const finalAccounts   = keepAccounts ? resetAccounts : [];
+  const finalCategories = keepAccounts ? categories    : [];
+
+  await setDoc(
+    doc(db, "users", userId),
+    cleanData({ accounts: finalAccounts, categories: finalCategories }),
+    { merge: false }   // overwrite, don't merge, so old stale fields are gone
+  );
+
+  console.log("Firestore: Fresh start complete.");
 };

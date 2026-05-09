@@ -87,7 +87,7 @@ const AuthView: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 font-sans relative overflow-x-hidden overflow-y-auto selection:bg-[#4285F4]/30" style={{ background: '#0a0f1a' }}>
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 font-sans relative overflow-x-hidden overflow-y-auto" style={{ background: 'var(--base)', fontFamily: "'Inter', sans-serif" }}>
       <div className="absolute inset-0 overflow-hidden">
         <div className="auth-orb auth-orb-1" />
         <div className="auth-orb auth-orb-2" />
@@ -105,12 +105,12 @@ const AuthView: React.FC = () => {
         <div className="text-center mb-10">
           <div className="relative inline-block mb-6">
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[24px] flex items-center justify-center mx-auto relative group shine-hover overflow-hidden" style={{
-              background: 'linear-gradient(135deg, #4285F4, #34A853)',
-              boxShadow: '0 12px 40px rgba(66,133,244,0.4), 0 0 100px rgba(66,133,244,0.1)',
+              background: 'linear-gradient(135deg, var(--primary-deep), var(--secondary))',
+              boxShadow: '0 10px 32px var(--primary-glow)',
             }}>
               <i className={`fa-solid ${isPasswordReset ? 'fa-key' : isLogin ? 'fa-fingerprint' : 'fa-user-plus'} text-white text-3xl transition-transform duration-500 group-hover:scale-110`}></i>
             </div>
-            <div className="absolute -inset-4 rounded-full animate-pulse opacity-40" style={{ background: 'radial-gradient(circle, rgba(66,133,244,0.2) 0%, transparent 70%)' }} />
+            <div className="absolute -inset-4 rounded-full animate-pulse opacity-30" style={{ background: 'radial-gradient(circle, var(--primary-glow) 0%, transparent 70%)' }} />
           </div>
           <h1 className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight text-white mb-2">
             {isPasswordReset ? 'Reset Password' : (isLogin ? 'VibhavWealth' : 'Sign Up')}
@@ -120,11 +120,13 @@ const AuthView: React.FC = () => {
           </p>
         </div>
 
-        <div className="glass rounded-[32px] p-6 sm:p-10 relative overflow-hidden" style={{ boxShadow: '0 30px 60px rgba(0,0,0,0.5)' }}>
+        <div className="rounded-[28px] p-6 sm:p-9 relative overflow-hidden" style={{ background: 'var(--surface-1)', border: '1px solid var(--border)', boxShadow: '0 24px 64px rgba(0,0,0,0.5)' }}>
           <div className="absolute top-0 left-0 right-0 h-[2px]" style={{
-            background: isPasswordReset ? 'linear-gradient(90deg, transparent, #FBBC04, transparent)' : (isLogin
-              ? 'linear-gradient(90deg, transparent, #4285F4, #34A853, transparent)'
-              : 'linear-gradient(90deg, transparent, #34A853, #4285F4, transparent)'),
+            background: isPasswordReset
+              ? 'linear-gradient(90deg, transparent, var(--accent), transparent)'
+              : isLogin
+              ? 'linear-gradient(90deg, transparent, var(--primary-deep), var(--secondary), transparent)'
+              : 'linear-gradient(90deg, transparent, var(--secondary), var(--primary-deep), transparent)',
             transition: 'background 0.5s ease',
           }} />
 
@@ -204,7 +206,9 @@ const AuthView: React.FC = () => {
 
             {isLogin && !isPasswordReset && (
               <div className="text-right">
-                <button type="button" onClick={() => setIsPasswordReset(true)} className="text-[10px] font-bold text-[#4285F4] uppercase tracking-widest hover:opacity-80 transition-opacity">
+                <button type="button" onClick={() => setIsPasswordReset(true)}
+                  className="text-[11px] font-semibold transition-colors"
+                  style={{ color: 'var(--primary)' }}>
                   Forget Password?
                 </button>
               </div>
@@ -226,11 +230,14 @@ const AuthView: React.FC = () => {
 
             <button
               type="submit" disabled={loading}
-              className="w-full py-4 sm:py-4.5 rounded-2xl text-[11px] font-bold text-white uppercase tracking-[0.2em] shine-hover btn-primary-glow shadow-xl active:scale-[0.98]"
+              className="w-full py-4 rounded-[14px] text-[12px] font-semibold text-white uppercase tracking-[0.12em] shine-hover active:scale-[0.98] transition-all"
               style={{
-                background: isPasswordReset ? 'linear-gradient(135deg, #FBBC04, #e6ac05)' : (isLogin
-                  ? 'linear-gradient(135deg, #4285F4, #3b78e7)'
-                  : 'linear-gradient(135deg, #34A853, #2d9249)'),
+                background: isPasswordReset
+                  ? 'linear-gradient(135deg, #e6ac05, #f5c842)'
+                  : isLogin
+                  ? 'var(--primary-deep)'
+                  : 'linear-gradient(135deg, #2a9c4e, var(--secondary))',
+                boxShadow: isLogin ? '0 4px 16px var(--primary-glow)' : 'none',
               }}
             >
               {loading ? (
@@ -241,30 +248,39 @@ const AuthView: React.FC = () => {
             </button>
           </form>
 
-          <div className="mt-8 pt-6 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="mt-7 pt-5 text-center" style={{ borderTop: '1px solid var(--border)' }}>
             <button
               onClick={isPasswordReset ? () => setIsPasswordReset(false) : toggleMode}
-              className="text-gray-500 hover:text-white text-xs font-medium transition-colors"
+              className="text-[12px] font-medium transition-colors"
+              style={{ color: 'var(--text-3)' }}
             >
-              {isPasswordReset ? "Back to " : (isLogin ? "Don't have an account? " : "Already have an account? ")}
-              <span className="text-[#4285F4] font-bold">{isPasswordReset ? 'Login' : (isLogin ? 'Sign Up' : 'Login')}</span>
+              {isPasswordReset ? 'Back to ' : (isLogin ? "Don't have an account? " : 'Already have an account? ')}
+              <span className="font-semibold" style={{ color: 'var(--primary)' }}>
+                {isPasswordReset ? 'Login' : (isLogin ? 'Sign Up' : 'Login')}
+              </span>
             </button>
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-6 mt-10 text-gray-600 text-[10px] font-bold uppercase tracking-widest opacity-60">
-          <span className="flex items-center gap-2"><i className="fa-solid fa-shield-check text-[#4285F4]"></i> Security</span>
-          <span className="flex items-center gap-2"><i className="fa-solid fa-satellite-dish text-[#34A853]"></i> Sync</span>
-          <span className="flex items-center gap-2"><i className="fa-solid fa-microchip text-[#FBBC04]"></i> Engine</span>
+        <div className="flex items-center justify-center gap-6 mt-8" style={{ opacity: 0.4 }}>
+          <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-2)' }}>
+            <i className="fa-solid fa-shield-check" style={{ color: 'var(--primary)' }} /> Security
+          </span>
+          <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-2)' }}>
+            <i className="fa-solid fa-satellite-dish" style={{ color: 'var(--secondary)' }} /> Sync
+          </span>
+          <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-2)' }}>
+            <i className="fa-solid fa-microchip" style={{ color: 'var(--accent)' }} /> Engine
+          </span>
         </div>
       </div>
 
       <style>{`
         .auth-orb { position: absolute; border-radius: 50%; filter: blur(100px); }
-        .auth-orb-1 { width: 600px; height: 600px; top: -20%; left: -10%; background: radial-gradient(circle, rgba(66,133,244,0.18) 0%, transparent 70%); animation: orbFloat1 25s ease-in-out infinite; }
-        .auth-orb-2 { width: 500px; height: 500px; bottom: -15%; right: -5%; background: radial-gradient(circle, rgba(52,168,83,0.15) 0%, transparent 70%); animation: orbFloat2 30s ease-in-out infinite; }
-        .auth-orb-3 { width: 400px; height: 400px; top: 50%; left: 50%; transform: translate(-50%,-50%); background: radial-gradient(circle, rgba(234,67,53,0.1) 0%, transparent 70%); animation: orbFloat3 22s ease-in-out infinite; }
-        .auth-orb-4 { width: 450px; height: 450px; top: 10%; right: 20%; background: radial-gradient(circle, rgba(251,188,4,0.08) 0%, transparent 70%); animation: orbFloat4 28s ease-in-out infinite; }
+        .auth-orb-1 { width: 500px; height: 500px; top: -15%; left: -8%; background: radial-gradient(circle, rgba(59,116,224,0.14) 0%, transparent 70%); animation: orbFloat1 25s ease-in-out infinite; }
+        .auth-orb-2 { width: 450px; height: 450px; bottom: -12%; right: -5%; background: radial-gradient(circle, rgba(94,203,138,0.12) 0%, transparent 70%); animation: orbFloat2 30s ease-in-out infinite; }
+        .auth-orb-3 { width: 350px; height: 350px; top: 50%; left: 50%; transform: translate(-50%,-50%); background: radial-gradient(circle, rgba(232,104,94,0.07) 0%, transparent 70%); animation: orbFloat3 22s ease-in-out infinite; }
+        .auth-orb-4 { width: 400px; height: 400px; top: 10%; right: 20%; background: radial-gradient(circle, rgba(245,200,66,0.06) 0%, transparent 70%); animation: orbFloat4 28s ease-in-out infinite; }
         @keyframes orbFloat1 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(80px,50px) scale(1.1); } 66% { transform: translate(-40px,80px) scale(0.9); } }
         @keyframes orbFloat2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-60px,-40px) scale(1.2); } }
         @keyframes orbFloat3 { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-45%,-55%) scale(1.25); } }

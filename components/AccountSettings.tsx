@@ -4,209 +4,253 @@ import { Account, AccountType } from '../types';
 import { CURRENCY_SYMBOL, formatCurrency } from '../constants';
 
 interface AccountSettingsProps {
-  accounts: Account[];
-  onAdd: (account: Omit<Account, 'id'>) => void;
-  onUpdate: (id: string, updates: Partial<Account>) => void;
-  onDelete: (id: string) => void;
-  onRebalance: () => void;
+  accounts:     Account[];
+  onAdd:        (account: Omit<Account, 'id'>) => void;
+  onUpdate:     (id: string, updates: Partial<Account>) => void;
+  onDelete:     (id: string) => void;
+  onRebalance:  () => void;
+  onFreshStart: () => void;
 }
 
-const AccountSettings: React.FC<AccountSettingsProps> = ({ accounts, onAdd, onUpdate, onDelete, onRebalance }) => {
-  const [isAdding, setIsAdding] = useState(false);
-  const [newName, setNewName] = useState('');
-  const [newBalance, setNewBalance] = useState('');
-  const [newLimit, setNewLimit] = useState('');
-  const [newType, setNewType] = useState<AccountType>('bank');
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editName, setEditName] = useState('');
-  const [editBalance, setEditBalance] = useState('');
-  const [editLimit, setEditLimit] = useState('');
-  const [editType, setEditType] = useState<AccountType>('bank');
+const TYPE_ICON:  Record<string, string> = { bank: 'fa-building-columns', credit: 'fa-credit-card', cash: 'fa-wallet' };
+const TYPE_LABEL: Record<string, string> = { bank: 'Bank', credit: 'Credit', cash: 'Cash' };
+
+const AccountSettings: React.FC<AccountSettingsProps> = ({
+  accounts, onAdd, onUpdate, onDelete, onRebalance, onFreshStart,
+}) => {
+  const [isAdding,     setIsAdding]     = useState(false);
+  const [newName,      setNewName]      = useState('');
+  const [newBalance,   setNewBalance]   = useState('');
+  const [newLimit,     setNewLimit]     = useState('');
+  const [newType,      setNewType]      = useState<AccountType>('bank');
+  const [editingId,    setEditingId]    = useState<string | null>(null);
+  const [editName,     setEditName]     = useState('');
+  const [editBalance,  setEditBalance]  = useState('');
+  const [editLimit,    setEditLimit]    = useState('');
+  const [editType,     setEditType]     = useState<AccountType>('bank');
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim() || !newBalance) return;
     onAdd({
-      name: newName.trim(), 
+      name:          newName.trim(),
       initialBalance: parseFloat(newBalance),
-      balance: parseFloat(newBalance), 
-      type: newType,
-      color: `#${Math.floor(Math.random()*16777215).toString(16)}`,
-      creditLimit: newType === 'credit' ? parseFloat(newLimit) : undefined
+      balance:       parseFloat(newBalance),
+      type:          newType,
+      color:         `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`,
+      creditLimit:   newType === 'credit' ? parseFloat(newLimit) : undefined,
     });
-    setNewName(''); setNewBalance(''); setIsAdding(false);
+    setNewName(''); setNewBalance(''); setNewLimit(''); setIsAdding(false);
   };
 
   const startEditing = (acc: Account) => {
-    setEditingId(acc.id); 
-    setEditName(acc.name); 
+    setEditingId(acc.id);
+    setEditName(acc.name);
     setEditBalance(acc.initialBalance.toString());
-    setEditType(acc.type); 
+    setEditType(acc.type);
     setEditLimit(acc.creditLimit?.toString() || '0');
   };
 
   const handleUpdate = (id: string) => {
     if (!editName.trim() || !editBalance) return;
-    onUpdate(id, { 
-      name: editName.trim(), 
+    onUpdate(id, {
+      name:          editName.trim(),
       initialBalance: parseFloat(editBalance),
-      type: editType, 
-      creditLimit: editType === 'credit' ? parseFloat(editLimit) : undefined 
+      type:          editType,
+      creditLimit:   editType === 'credit' ? parseFloat(editLimit) : undefined,
     });
     setEditingId(null);
   };
 
-  const inputClass = "w-full glass bg-white/[0.02] border-white/5 rounded-2xl px-4 py-3 text-[13px] font-bold text-white focus:border-[#4285F4]/40 focus:bg-white/[0.08] outline-none transition-all placeholder:text-gray-700";
-  const labelClass = "block text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-2 ml-1";
+  /* Shared input style */
+  const inp = "w-full px-3.5 py-2.5 rounded-xl text-[13px] font-medium text-white outline-none transition-all placeholder:text-[var(--text-3)]";
+  const inpS = { background: 'var(--surface-2)', border: '1px solid var(--border)' } as React.CSSProperties;
 
   return (
-    <div className="glass rounded-[36px] p-6 sm:p-10 relative overflow-hidden" style={{ animation: 'fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }}>
-       {/* Acccent Orb */}
-       <div className="absolute top-[-20%] right-[-10%] w-[40%] h-[40%] bg-[#4285F4]/5 blur-[80px] rounded-full pointer-events-none"></div>
+    <div className="rounded-[22px] p-5 sm:p-7 relative overflow-hidden"
+      style={{ background: 'var(--surface-1)', border: '1px solid var(--border)', animation: 'fadeUp 0.4s ease both' }}>
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10 relative z-10">
+      {/* Section header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
-             <i className="fa-solid fa-vault text-[#4285F4] text-xs"></i>
-             <h3 className="text-2xl font-black text-white tracking-tighter uppercase">Manage Accounts</h3>
+            <div className="w-6 h-6 rounded-lg flex items-center justify-center"
+              style={{ background: 'rgba(108,158,248,0.12)', color: 'var(--primary)' }}>
+              <i className="fa-solid fa-vault text-[11px]" />
+            </div>
+            <h2 className="font-display font-bold text-white text-base tracking-tight">Manage Accounts</h2>
           </div>
-          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">Set up your bank accounts and cards</p>
+          <p className="text-[11px] ml-8" style={{ color: 'var(--text-3)' }}>Wallets, bank accounts &amp; cards</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+
+        {/* Action buttons */}
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <button onClick={onFreshStart}
+            className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-[11px] font-semibold flex items-center gap-2 justify-center transition-all btn-danger">
+            <i className="fa-solid fa-rotate-left text-[10px]" />
+            Fresh Start
+          </button>
           <button onClick={onRebalance}
-            className="px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 active:scale-95 flex items-center gap-3 justify-center glass text-gray-400 hover:text-[#FBBC04] border-white/5 hover:border-[#FBBC04]/20"
-          >
-            <i className="fa-solid fa-sync text-xs"></i>
+            className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-[11px] font-semibold flex items-center gap-2 justify-center transition-all"
+            style={{ background: 'rgba(245,200,66,0.08)', color: 'var(--accent)', border: '1px solid rgba(245,200,66,0.15)' }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(245,200,66,0.14)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(245,200,66,0.08)')}>
+            <i className="fa-solid fa-sync text-[10px]" />
             Sync Tally
           </button>
           <button onClick={() => setIsAdding(!isAdding)}
-            className={`px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 active:scale-95 flex items-center gap-3 justify-center shine-hover ${isAdding ? 'glass text-white' : 'btn-primary-glow text-white shadow-xl'}`}
-          >
-            <i className={`fa-solid ${isAdding ? 'fa-xmark' : 'fa-plus'} text-xs`}></i>
-            {isAdding ? 'Decline' : 'Add Account'}
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-xl text-[11px] font-semibold flex items-center gap-2 justify-center transition-all shine-hover ${isAdding ? '' : 'btn-primary-glow text-white'}`}
+            style={isAdding ? { background: 'var(--surface-2)', color: 'var(--text-2)', border: '1px solid var(--border)' } : {}}>
+            <i className={`fa-solid ${isAdding ? 'fa-xmark' : 'fa-plus'} text-[10px]`} />
+            {isAdding ? 'Cancel' : 'Add Account'}
           </button>
         </div>
       </div>
 
+      {/* ── Add Account Form ── */}
       {isAdding && (
-        <form onSubmit={handleAdd} className="mb-10 p-6 sm:p-8 rounded-[32px] glass space-y-6 relative z-10" style={{ animation: 'slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="space-y-1">
-              <label className={labelClass}>Account Name</label>
-              <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Primary Reserve"
-                className={inputClass} />
+        <form onSubmit={handleAdd}
+          className="mb-6 p-4 sm:p-5 rounded-[18px] space-y-4"
+          style={{ animation: 'slideDown 0.25s ease both', background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text-3)' }}>Account Name</p>
+              <input type="text" value={newName} onChange={e => setNewName(e.target.value)}
+                placeholder="e.g. HDFC Savings" className={inp} style={inpS} />
             </div>
-            <div className="space-y-1">
-              <label className={labelClass}>Account Type</label>
-              <div className="relative">
-                <select value={newType} onChange={(e) => setNewType(e.target.value as any)}
-                  className={inputClass}>
-                  <option value="bank" className="bg-[#121214]">Bank Account</option>
-                  <option value="credit" className="bg-[#121214]">Credit Card</option>
-                  <option value="cash" className="bg-[#121214]">Cash</option>
-                </select>
-                <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none text-xs"></i>
-              </div>
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text-3)' }}>Type</p>
+              <select value={newType} onChange={e => setNewType(e.target.value as AccountType)}
+                className={inp} style={{ ...inpS, appearance: 'none' as any }}>
+                <option value="bank">Bank Account</option>
+                <option value="credit">Credit Card</option>
+                <option value="cash">Cash</option>
+              </select>
             </div>
-            <div className="space-y-1">
-              <label className={labelClass}>Initial Balance</label>
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text-3)' }}>Opening Balance</p>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-bold">₹</span>
-                <input type="number" value={newBalance} onChange={(e) => setNewBalance(e.target.value)} placeholder="0.00"
-                  className={`${inputClass} pl-10`} />
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-3)] text-sm">{CURRENCY_SYMBOL}</span>
+                <input type="number" value={newBalance} onChange={e => setNewBalance(e.target.value)}
+                  placeholder="0.00" className={`${inp} pl-8`} style={inpS} />
               </div>
             </div>
             {newType === 'credit' && (
-              <div className="space-y-1">
-                <label className={labelClass}>Credit Limit</label>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text-3)' }}>Credit Limit</p>
                 <div className="relative">
-                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-bold">₹</span>
-                   <input type="number" value={newLimit} onChange={(e) => setNewLimit(e.target.value)} placeholder="Enter Limit"
-                     className={`${inputClass} pl-10`} />
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-3)] text-sm">{CURRENCY_SYMBOL}</span>
+                  <input type="number" value={newLimit} onChange={e => setNewLimit(e.target.value)}
+                    placeholder="Enter limit" className={`${inp} pl-8`} style={inpS} />
                 </div>
               </div>
             )}
           </div>
-          <div className="flex justify-end pt-4">
-            <button type="submit" className="px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-white btn-primary-glow shadow-xl active:scale-95 transition-all">
+          <div className="flex justify-end">
+            <button type="submit"
+              className="px-6 py-2.5 rounded-xl text-[11px] font-semibold text-white btn-primary-glow transition-all active:scale-95 shine-hover">
               Save Account
             </button>
           </div>
         </form>
       )}
 
-      <div className="space-y-3 relative z-10">
+      {/* ── Account List ── */}
+      <div className="space-y-2.5">
         {accounts.map((acc, i) => (
-          <div key={acc.id} className="group p-5 sm:p-6 rounded-[28px] glass border-white/5 transition-all duration-300 relative overflow-hidden"
-            style={{ animation: `fadeUp 0.5s ease-out ${i * 0.08}s both` }}
-          >
-            <div className="absolute left-0 top-0 bottom-0 w-[4px] opacity-20 group-hover:opacity-100 transition-opacity" style={{ background: acc.color, boxShadow: `0 0 15px ${acc.color}` }}></div>
-            
+          <div key={acc.id}
+            className="group p-4 sm:p-5 rounded-[18px] relative overflow-hidden transition-all duration-200"
+            style={{ animation: `fadeUp 0.4s ease ${i * 0.06}s both`, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+
+            {/* Left accent */}
+            <div className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full opacity-30 group-hover:opacity-100 transition-opacity"
+              style={{ background: acc.color }} />
+
             {editingId === acc.id ? (
-              <div className="flex flex-col sm:flex-row flex-wrap items-end gap-4">
-                <div className="space-y-1 w-full sm:w-auto flex-1 min-w-[200px]">
-                  <span className="text-[9px] text-gray-500 uppercase font-black ml-1">Name</span>
-                  <input className={inputClass} value={editName} onChange={(e) => setEditName(e.target.value)} />
-                </div>
-                <div className="space-y-1 w-full sm:w-auto flex-1 min-w-[150px]">
-                  <span className="text-[9px] text-gray-500 uppercase font-black ml-1">Initial Balance (Start)</span>
-                  <div className="relative">
-                    <input className={inputClass} value={editBalance} onChange={(e) => setEditBalance(e.target.value)} type="number" />
-                    <p className="absolute -bottom-5 left-1 text-[8px] text-[#4285F4] font-black uppercase tracking-tighter whitespace-nowrap">
-                      Current will become: {CURRENCY_SYMBOL}{formatCurrency(parseFloat(editBalance || '0') + (acc.balance - acc.initialBalance))}
+              /* Edit mode */
+              <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text-3)' }}>Name</p>
+                    <input className={inp} style={inpS} value={editName} onChange={e => setEditName(e.target.value)} />
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text-3)' }}>Initial Balance</p>
+                    <input className={inp} style={inpS} type="number" value={editBalance} onChange={e => setEditBalance(e.target.value)} />
+                    <p className="text-[9px] mt-1" style={{ color: 'var(--primary)' }}>
+                      New balance → {CURRENCY_SYMBOL}{formatCurrency(parseFloat(editBalance || '0') + (acc.balance - acc.initialBalance))}
                     </p>
                   </div>
-                </div>
-                <div className="space-y-1 w-full sm:w-auto flex-1 min-w-[100px]">
-                  <span className="text-[9px] text-gray-500 uppercase font-black ml-1">Type</span>
-                  <div className="relative">
-                    <select className={inputClass} value={editType} onChange={(e) => setEditType(e.target.value as any)}>
-                      <option value="bank" className="bg-[#121214]">Bank</option>
-                      <option value="credit" className="bg-[#121214]">Credit</option>
-                      <option value="cash" className="bg-[#121214]">Cash</option>
+                  <div>
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text-3)' }}>Type</p>
+                    <select className={inp} style={{ ...inpS, appearance: 'none' as any }} value={editType} onChange={e => setEditType(e.target.value as AccountType)}>
+                      <option value="bank">Bank</option>
+                      <option value="credit">Credit</option>
+                      <option value="cash">Cash</option>
                     </select>
                   </div>
+                  {editType === 'credit' && (
+                    <div>
+                      <p className="text-[9px] font-semibold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text-3)' }}>Credit Limit</p>
+                      <input className={inp} style={inpS} type="number" value={editLimit} onChange={e => setEditLimit(e.target.value)} placeholder="Limit" />
+                    </div>
+                  )}
                 </div>
-                {editType === 'credit' && (
-                  <div className="space-y-1 w-full sm:w-auto flex-1 min-w-[150px]">
-                    <span className="text-[9px] text-gray-500 uppercase font-black ml-1">Limit</span>
-                    <input className={inputClass} value={editLimit} onChange={(e) => setEditLimit(e.target.value)} type="number" placeholder="Limit" />
-                  </div>
-                )}
-                <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-2 mt-4 sm:mt-0">
-                  <button onClick={() => handleUpdate(acc.id)} className="w-full sm:w-auto px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white btn-primary-glow">Save</button>
-                  <button onClick={() => setEditingId(null)} className="w-full sm:w-auto px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest glass text-gray-400">Cancel</button>
+                <div className="flex gap-2">
+                  <button onClick={() => handleUpdate(acc.id)}
+                    className="px-5 py-2 rounded-xl text-[11px] font-semibold text-white btn-primary-glow transition-all active:scale-95">
+                    Save
+                  </button>
+                  <button onClick={() => setEditingId(null)}
+                    className="px-5 py-2 rounded-xl text-[11px] font-semibold transition-all"
+                    style={{ background: 'var(--surface-3)', color: 'var(--text-2)', border: '1px solid var(--border)' }}>
+                    Cancel
+                  </button>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="flex items-center gap-6">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:rotate-[15deg] group-hover:scale-110 shrink-0"
-                    style={{ background: `${acc.color}10`, color: acc.color, border: `1px solid ${acc.color}20` }}>
-                    <i className={`fa-solid ${acc.type === 'credit' ? 'fa-credit-card' : acc.type === 'cash' ? 'fa-wallet' : 'fa-building-columns'} text-lg`}></i>
+              /* View mode */
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105"
+                    style={{ background: `${acc.color}14`, color: acc.color }}>
+                    <i className={`fa-solid ${TYPE_ICON[acc.type]} text-sm`} />
                   </div>
                   <div>
-                    <p className="text-base font-black text-white tracking-tight uppercase">{acc.name}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                       <span className="w-1.5 h-1.5 rounded-full" style={{ background: acc.color }}></span>
-                       <p className="text-[9px] text-gray-600 font-black uppercase tracking-[0.2em]">{acc.type === 'bank' ? 'Bank' : acc.type === 'credit' ? 'Credit' : 'Cash'}</p>
+                    <p className="text-[14px] font-semibold text-white">{acc.name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: acc.color }} />
+                      <p className="text-[10px]" style={{ color: 'var(--text-3)' }}>{TYPE_LABEL[acc.type]}</p>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between md:justify-end gap-6 sm:gap-10">
+
+                <div className="flex items-center justify-between sm:justify-end gap-6 pl-14 sm:pl-0">
                   <div className="text-right">
-                    <p className="text-2xl font-black text-white tracking-tighter">
-                       <span className="text-xs text-gray-600 mr-1">{CURRENCY_SYMBOL}</span>
-                       {formatCurrency(acc.balance)}
+                    <p className="font-display font-bold text-white" style={{ fontSize: 'clamp(16px, 4vw, 20px)', letterSpacing: '-0.02em' }}>
+                      <span className="text-[10px] mr-0.5" style={{ color: 'var(--text-3)' }}>{CURRENCY_SYMBOL}</span>
+                      {formatCurrency(acc.balance)}
                     </p>
-                    {acc.type === 'credit' && <p className="text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-1">Limit: {CURRENCY_SYMBOL}{formatCurrency(acc.creditLimit || 0)}</p>}
+                    {acc.type === 'credit' && (
+                      <p className="text-[10px]" style={{ color: 'var(--text-3)' }}>
+                        Limit: {CURRENCY_SYMBOL}{formatCurrency(acc.creditLimit || 0)}
+                      </p>
+                    )}
                   </div>
-                  <div className="flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300">
-                    <button onClick={() => startEditing(acc)} className="w-10 h-10 rounded-xl glass flex items-center justify-center text-gray-500 hover:text-white hover:bg-[#4285F4]/20 transition-all active:scale-90">
-                      <i className="fa-solid fa-pen-to-square text-[11px]"></i>
+                  <div className="flex gap-1.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => startEditing(acc)}
+                      className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
+                      style={{ background: 'var(--surface-3)', color: 'var(--text-2)' }}
+                      onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
+                      onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-2)')}>
+                      <i className="fa-solid fa-pen-to-square text-[11px]" />
                     </button>
-                    <button onClick={() => onDelete(acc.id)} className="w-10 h-10 rounded-xl glass flex items-center justify-center text-gray-500 hover:text-red-400 hover:bg-red-500/20 transition-all active:scale-90">
-                      <i className="fa-solid fa-trash-can text-[11px]"></i>
+                    <button onClick={() => onDelete(acc.id)}
+                      className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
+                      style={{ background: 'var(--surface-3)', color: 'var(--text-2)' }}
+                      onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
+                      onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-2)')}>
+                      <i className="fa-solid fa-trash-can text-[11px]" />
                     </button>
                   </div>
                 </div>
@@ -215,11 +259,6 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ accounts, onAdd, onUp
           </div>
         ))}
       </div>
-
-      <style>{`
-        @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes slideDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
-      `}</style>
     </div>
   );
 };

@@ -55,301 +55,304 @@
         theme: {
           extend: {
             colors: {
-              primary: "#8ab4f8",
-              "primary-deep": "#4285F4",
-              secondary: "#81c995",
-              "secondary-deep": "#34A853",
-              accent: "#fdd663",
-              critical: "#f28b82",
-              "critical-deep": "#EA4335",
-              base: "#0b0d12",
-              "surface-1": "#12141a",
-              "surface-2": "#1a1d24",
-              "surface-3": "#22252e",
-              "border-subtle": "rgba(255,255,255,0.06)",
-              "text-primary": "#e8eaed",
-              "text-secondary": "#9aa0a6",
-              "text-muted": "#5f6368",
+              primary:          "#6c9ef8",
+              "primary-deep":   "#3b74e0",
+              secondary:        "#5ecb8a",
+              accent:           "#f5c842",
+              danger:           "#e8685e",
+              base:             "#090b10",
+              "surface-0":      "#0d0f16",
+              "surface-1":      "#13161f",
+              "surface-2":      "#1b1e29",
+              "surface-3":      "#232737",
+              "text-primary":   "#eceef4",
+              "text-secondary": "#8c92a4",
+              "text-muted":     "#4e5566",
             },
             fontFamily: {
-              display: ["Plus Jakarta Sans", "sans-serif"],
-              sans: ["Inter", "sans-serif"],
+              display: ["DM Sans", "Inter", "sans-serif"],
+              sans:    ["Inter", "system-ui", "sans-serif"],
             },
             borderRadius: {
-              card: "20px",
-              pill: "14px",
+              card: "22px",
+              pill: "50px",
             },
           },
         },
       };
     </script>
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
 
     <style>
+      /* =========================================
+         DESIGN TOKENS
+      ========================================= */
       :root {
-        --primary: #8ab4f8;
-        --primary-deep: #4285f4;
-        --secondary: #81c995;
-        --base: #0b0d12;
-        --surface-1: #12141a;
-        --surface-2: #1a1d24;
-        --surface-3: #22252e;
+        --primary:       #6c9ef8;
+        --primary-deep:  #3b74e0;
+        --primary-glow:  rgba(59,116,224,0.18);
+        --secondary:     #5ecb8a;
+        --accent:        #f5c842;
+        --danger:        #e8685e;
+        --base:          #090b10;
+        --surface-0:     #0d0f16;
+        --surface-1:     #13161f;
+        --surface-2:     #1b1e29;
+        --surface-3:     #232737;
+        --border:        rgba(255,255,255,0.07);
+        --border-focus:  rgba(108,158,248,0.35);
+        --text-1:        #eceef4;
+        --text-2:        #8c92a4;
+        --text-3:        #4e5566;
+        --radius-sm:     10px;
+        --radius-md:     16px;
+        --radius-lg:     22px;
+        --radius-xl:     28px;
       }
 
-      * {
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
-      }
+      /* =========================================
+         RESET & BASE
+      ========================================= */
+      *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+      html { scroll-behavior: smooth; }
 
       body {
-        background-color: var(--base);
-        color: #e8eaed;
+        background: var(--base);
+        color: var(--text-1);
         margin: 0;
         overflow-x: hidden;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        font-family: "Inter", sans-serif;
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
       }
 
-      /* ============================================= */
-      /* CLEAN SURFACE CARDS (replaces glassmorphism)  */
-      /* ============================================= */
+      /* =========================================
+         SURFACE / CARD SYSTEM
+      ========================================= */
       .glass {
         background: var(--surface-1) !important;
-        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        border: 1px solid var(--border) !important;
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
       }
+      .surface-2 { background: var(--surface-2); border: 1px solid var(--border); }
+      .surface-3 { background: var(--surface-3); border: 1px solid var(--border); }
 
-      .surface-2 {
-        background: var(--surface-2);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-      }
+      /* Card elevation system */
+      .card-sm  { border-radius: var(--radius-md); background: var(--surface-1); border: 1px solid var(--border); }
+      .card-md  { border-radius: var(--radius-lg); background: var(--surface-1); border: 1px solid var(--border); }
+      .card-lg  { border-radius: var(--radius-xl); background: var(--surface-1); border: 1px solid var(--border); }
 
-      .surface-3 {
-        background: var(--surface-3);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-      }
+      /* =========================================
+         TYPOGRAPHY
+      ========================================= */
+      .font-display { font-family: 'DM Sans', 'Inter', sans-serif; }
 
-      /* ============================================= */
-      /* BUTTONS - Smooth, no glow                     */
-      /* ============================================= */
+      .text-hero   { font-size: clamp(28px, 6vw, 42px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+      .text-title  { font-size: clamp(18px, 4vw, 24px); font-weight: 700; letter-spacing: -0.02em; }
+      .text-label  { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+      .text-mono   { font-family: 'DM Sans', monospace; font-variant-numeric: tabular-nums; }
+
+      /* =========================================
+         BUTTONS
+      ========================================= */
       button {
         position: relative;
-        transition: all 0.2s ease !important;
+        cursor: pointer;
+        border: none;
+        outline: none;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, opacity 0.15s ease;
       }
+      button:hover  { transform: translateY(-1px); }
+      button:active { transform: translateY(0) scale(0.97); }
 
-      button:hover {
-        transform: translateY(-1px);
-        filter: brightness(1.05);
-        box-shadow: none;
+      .btn-primary {
+        background: var(--primary-deep);
+        color: #fff;
+        box-shadow: 0 2px 12px var(--primary-glow);
       }
-
-      button:active {
-        transform: translateY(0px) scale(0.98);
-      }
+      .btn-primary:hover { box-shadow: 0 4px 20px var(--primary-glow); }
 
       .btn-primary-glow {
         background: var(--primary-deep) !important;
-        box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2) !important;
+        box-shadow: 0 2px 12px var(--primary-glow) !important;
       }
-      .btn-primary-glow:hover {
-        box-shadow: 0 4px 16px rgba(66, 133, 244, 0.25) !important;
-      }
+      .btn-primary-glow:hover { box-shadow: 0 4px 20px var(--primary-glow) !important; }
 
-      /* ============================================= */
-      /* SHINE EFFECT — subtle sweep                   */
-      /* ============================================= */
-      .shine-hover {
-        overflow: hidden;
-      }
-      .shine-hover::after {
-        content: "";
-        position: absolute;
-        top: -50%;
-        left: -150%;
-        width: 80%;
-        height: 200%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.03),
-          transparent
-        );
-        transform: rotate(25deg);
-        transition: all 0.7s ease;
-      }
-      .shine-hover:hover::after {
-        left: 150%;
-      }
-
-      /* ============================================= */
-      /* SPLASH SCREEN                                 */
-      /* ============================================= */
-      #splash-screen {
-        position: fixed;
-        inset: 0;
-        background: #0b0d12;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-
-      .splash-logo-container {
-        position: relative;
-        margin-bottom: 32px;
-      }
-
-      .splash-logo {
-        width: 72px;
-        height: 72px;
-        background: var(--primary-deep);
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        z-index: 2;
-      }
-
-      .splash-logo-glow {
-        position: absolute;
-        inset: -16px;
-        background: radial-gradient(
-          circle,
-          rgba(66, 133, 244, 0.12) 0%,
-          transparent 70%
-        );
-        animation: breath 2.5s infinite ease-in-out;
-      }
-
-      @keyframes breath {
-        0%, 100% { transform: scale(1); opacity: 0.3; }
-        50% { transform: scale(1.15); opacity: 0.5; }
-      }
-
-      .splash-text {
-        font-family: "Plus Jakarta Sans", sans-serif;
-        font-size: 14px;
-        font-weight: 800;
-        letter-spacing: 0.5em;
-        text-transform: uppercase;
-        margin-bottom: 16px;
-        color: #9aa0a6;
-        animation: fadeInUp 0.8s ease-out;
-      }
-
-      .loading-bar-container {
-        width: 160px;
-        height: 2px;
-        background: rgba(255, 255, 255, 0.04);
-        border-radius: 10px;
-        overflow: hidden;
-      }
-
-      .loading-bar-fill {
-        width: 0%;
-        height: 100%;
-        background: var(--primary-deep);
-        border-radius: 10px;
-        animation: load 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      }
-
-      @keyframes load {
-        0% { width: 0%; }
-        60% { width: 85%; }
-        100% { width: 100%; }
-      }
-
-      @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      /* ============================================= */
-      /* SCROLLBAR — minimal                           */
-      /* ============================================= */
-      ::-webkit-scrollbar {
-        width: 5px;
-        height: 5px;
-      }
-      ::-webkit-scrollbar-track {
+      .btn-ghost {
         background: transparent;
+        color: var(--text-2);
+        border: 1px solid var(--border);
       }
-      ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.06);
-        border-radius: 10px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.12);
-      }
+      .btn-ghost:hover { background: var(--surface-2); color: var(--text-1); }
 
-      /* ============================================= */
-      /* INPUT AUTOFILL                                */
-      /* ============================================= */
+      .btn-danger {
+        background: rgba(232,104,94,0.12);
+        color: var(--danger);
+        border: 1px solid rgba(232,104,94,0.2);
+      }
+      .btn-danger:hover { background: rgba(232,104,94,0.2); }
+
+      /* =========================================
+         INPUTS
+      ========================================= */
+      input, select, textarea {
+        font-family: inherit;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        color: var(--text-1);
+        outline: none;
+        transition: border-color 0.2s, background 0.2s;
+      }
+      input:focus, select:focus, textarea:focus {
+        border-color: var(--border-focus);
+        background: var(--surface-2);
+      }
       input:-webkit-autofill,
       input:-webkit-autofill:hover,
       input:-webkit-autofill:focus {
-        -webkit-text-fill-color: white;
-        -webkit-box-shadow: 0 0 0px 1000px var(--surface-2) inset;
+        -webkit-text-fill-color: var(--text-1);
+        -webkit-box-shadow: 0 0 0 1000px var(--surface-2) inset;
         transition: background-color 5000s ease-in-out 0s;
       }
 
-      /* ============================================= */
-      /* ANIMATIONS                                    */
-      /* ============================================= */
-      @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+      /* =========================================
+         BADGES
+      ========================================= */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
       }
+      .badge-income  { background: rgba(94,203,138,0.12); color: var(--secondary); }
+      .badge-expense { background: rgba(232,104,94,0.12);  color: var(--danger);    }
+      .badge-transfer{ background: rgba(108,158,248,0.12); color: var(--primary);   }
+      .badge-cc      { background: rgba(245,200,66,0.12);  color: var(--accent);    }
 
-      @keyframes slideDown {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
+      /* =========================================
+         DIVIDER
+      ========================================= */
+      .divider { height: 1px; background: var(--border); }
 
-      @keyframes pageIn {
-        from { opacity: 0; transform: translateY(24px); }
-        to { opacity: 1; transform: translateY(0); }
+      /* =========================================
+         SHINE SWEEP EFFECT
+      ========================================= */
+      .shine-hover { overflow: hidden; }
+      .shine-hover::after {
+        content: '';
+        position: absolute;
+        top: -60%; left: -120%;
+        width: 60%; height: 220%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+        transform: rotate(20deg);
+        transition: left 0.6s ease;
       }
+      .shine-hover:hover::after { left: 160%; }
 
-      @keyframes scaleIn {
-        from { opacity: 0; transform: scale(0.96); }
-        to { opacity: 1; transform: scale(1); }
-      }
+      /* =========================================
+         SCROLLBAR
+      ========================================= */
+      ::-webkit-scrollbar { width: 4px; height: 4px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 10px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
 
-      @keyframes modalIn {
-        from { opacity: 0; transform: scale(0.95) translateY(10px); }
-        to { opacity: 1; transform: scale(1) translateY(0); }
+      /* =========================================
+         SPLASH SCREEN
+      ========================================= */
+      #splash-screen {
+        position: fixed; inset: 0;
+        background: var(--base);
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        z-index: 10000;
+        transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1);
       }
+      .splash-logo-container { position: relative; margin-bottom: 28px; }
+      .splash-logo {
+        width: 68px; height: 68px;
+        background: var(--primary-deep);
+        border-radius: 20px;
+        display: flex; align-items: center; justify-content: center;
+        position: relative; z-index: 2;
+        box-shadow: 0 8px 32px var(--primary-glow);
+      }
+      .splash-logo-glow {
+        position: absolute; inset: -20px;
+        background: radial-gradient(circle, rgba(59,116,224,0.15) 0%, transparent 70%);
+        animation: breath 2.5s infinite ease-in-out;
+      }
+      @keyframes breath {
+        0%, 100% { transform: scale(1); opacity: 0.4; }
+        50%       { transform: scale(1.12); opacity: 0.7; }
+      }
+      .splash-text {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px; font-weight: 700;
+        letter-spacing: 0.35em; text-transform: uppercase;
+        color: var(--text-3); margin-bottom: 20px;
+        animation: fadeInUp 0.7s ease-out;
+      }
+      .loading-bar-container {
+        width: 140px; height: 2px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 10px; overflow: hidden;
+      }
+      .loading-bar-fill {
+        width: 0%; height: 100%;
+        background: var(--primary-deep);
+        border-radius: 10px;
+        animation: load 2.8s cubic-bezier(0.16,1,0.3,1) forwards;
+      }
+      @keyframes load { 0%{width:0%} 60%{width:82%} 100%{width:100%} }
+      @keyframes fadeInUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 
-      @keyframes backdropIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
+      /* =========================================
+         KEYFRAME ANIMATIONS
+      ========================================= */
+      @keyframes fadeUp    { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+      @keyframes slideDown { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+      @keyframes pageIn    { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+      @keyframes scaleIn   { from{opacity:0;transform:scale(0.96)} to{opacity:1;transform:scale(1)} }
+      @keyframes modalIn   { from{opacity:0;transform:scale(0.96) translateY(10px)} to{opacity:1;transform:scale(1) translateY(0)} }
+      @keyframes backdropIn{ from{opacity:0} to{opacity:1} }
+      @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-      /* ============================================= */
-      /* ORIENTATION + RESPONSIVE HELPERS              */
-      /* ============================================= */
-      @media (orientation: landscape) and (max-height: 500px) {
-        .landscape-compact { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
-        .landscape-hide { display: none !important; }
+      /* =========================================
+         RESPONSIVE / MOBILE / LANDSCAPE
+      ========================================= */
+      /* Landscape compact mode (phone rotated) */
+      @media (orientation: landscape) and (max-height: 520px) {
+        .landscape-compact { padding-top: 0.375rem !important; padding-bottom: 0.375rem !important; }
+        .landscape-hide    { display: none !important; }
+        .landscape-scroll  { overflow-y: auto; max-height: 100dvh; }
       }
+      /* Small phones */
+      @media (max-width: 375px) {
+        .glass   { border-radius: var(--radius-md) !important; }
+        .card-lg { border-radius: var(--radius-lg) !important; }
+      }
+      /* Safe area insets for notched phones */
+      .safe-top    { padding-top:    env(safe-area-inset-top); }
+      .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 12px); }
 
-      @media (max-width: 360px) {
-        .glass { border-radius: 16px !important; }
-      }
+      /* =========================================
+         TAILWIND OVERRIDES (token alignment)
+      ========================================= */
+      .rounded-card { border-radius: var(--radius-lg) !important; }
+      .rounded-pill { border-radius: 50px !important; }
     </style>
 
   </head>
