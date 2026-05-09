@@ -17,6 +17,18 @@ const INCOME_COLORS  = ['#5ecb8a', '#34d399', '#6ee7b7', '#a7f3d0'];
 const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, accounts }) => {
   const [selectedCategory, setSelectedCategory] = useState<{ name: string; type: string; catId: string } | null>(null);
 
+  // Lock body scroll when category modal is open
+  React.useEffect(() => {
+    if (selectedCategory) {
+      document.body.style.overflow = 'hidden';
+      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+      if (scrollBarWidth > 0) document.body.style.paddingRight = `${scrollBarWidth}px`;
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+  }, [selectedCategory]);
+
   const totalIncome  = useMemo(() => transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0), [transactions]);
   const totalExpense = useMemo(() => transactions.filter(t => t.type === 'expense' || t.type === 'cc_action').reduce((s, t) => s + t.amount, 0), [transactions]);
   const globalBalance = useMemo(() => accounts.reduce((s, a) => {
@@ -284,9 +296,10 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, categories, account
                 <h3 className="font-display font-bold text-white text-base">{selectedCategory.name}</h3>
               </div>
               <button onClick={() => setSelectedCategory(null)}
-                className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
-                style={{ background: 'var(--surface-2)', color: 'var(--text-2)' }}>
-                <i className="fa-solid fa-xmark text-sm" />
+                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-90"
+                style={{ background: 'var(--surface-2)', color: 'var(--text-2)', border: '1px solid var(--border)' }}
+                aria-label="Close modal">
+                <i className="fa-solid fa-xmark text-lg" />
               </button>
             </div>
 

@@ -79,6 +79,20 @@ const App: React.FC = () => {
   }, [user]);
 
   /* ── Toast helper ── */
+  /* ── Scroll lock for modals ── */
+  useEffect(() => {
+    const isAnyModalOpen = isTxModalOpen || editingTransaction || isExportModalOpen || isFreshStartOpen;
+    if (isAnyModalOpen) {
+      document.body.style.overflow = 'hidden';
+      // Prevent layout shift on desktop by adding padding if scrollbar disappears
+      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+      if (scrollBarWidth > 0) document.body.style.paddingRight = `${scrollBarWidth}px`;
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+  }, [isTxModalOpen, editingTransaction, isExportModalOpen, isFreshStartOpen]);
+
   const triggerToast = (message: string, onUndo: () => void = () => {}) => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToast({ message, visible: true, onUndo });
@@ -197,7 +211,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row text-white overflow-hidden" style={{ background: 'var(--base)', fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen flex flex-col lg:flex-row text-white overflow-x-hidden" style={{ background: 'var(--base)', fontFamily: "'Inter', sans-serif" }}>
       <Background3D />
 
       {/* ═══════════════════════════════════════
@@ -303,7 +317,7 @@ const App: React.FC = () => {
       {/* ═══════════════════════════════════════
           MAIN VIEWPORT
       ═══════════════════════════════════════ */}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-10 min-h-screen" style={{ overscrollBehavior: 'contain' }}>
+      <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-10 min-h-screen custom-scrollbar" style={{ WebkitOverflowScrolling: 'touch' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-28 lg:pb-10"
           key={activeTab} style={{ animation: 'pageIn 0.35s ease both' }}>
 
@@ -322,17 +336,19 @@ const App: React.FC = () => {
 
             <div className="flex items-center gap-2.5">
               {/* Mobile: user pill + logout */}
-              <div className="lg:hidden flex items-center gap-2 px-3 py-2 rounded-xl"
+              <div className="lg:hidden flex items-center gap-1 px-1.5 py-1.5 rounded-xl"
                 style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
-                <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold"
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0"
                   style={{ background: 'var(--primary-deep)', color: '#fff' }}>
                   {user.email?.charAt(0).toUpperCase()}
                 </div>
-                <button onClick={logoutUser} className="transition-colors"
+                <button onClick={logoutUser} 
+                  className="w-10 h-10 flex items-center justify-center rounded-lg transition-colors active:scale-90"
                   style={{ color: 'var(--text-3)' }}
+                  aria-label="Logout"
                   onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
                   onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-3)')}>
-                  <i className="fa-solid fa-arrow-right-from-bracket text-xs" />
+                  <i className="fa-solid fa-arrow-right-from-bracket text-sm" />
                 </button>
               </div>
 
